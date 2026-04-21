@@ -1,17 +1,14 @@
 {
   "name": "Pointure",
   "short_name": "Pointure",
-  "description": "L'assistant du peintre — calque AR, mélange de couleurs, bibliothèque d'inspiration",
-  "start_url": "/",
+  "start_url": "/pointure/",
+  "scope": "/pointure/",
   "display": "standalone",
-  "orientation": "portrait-primary",
-  "theme_color": "#2c1a0e",
-  "background_color": "#1a0e07",
+  "theme_color": "#06050f",
+  "background_color": "#06050f",
   "lang": "fr",
   "icons": [
-    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
-    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
-  ],
-  "categories": ["lifestyle", "art", "utilities"],
-  "screenshots": []
+    { "src": "/pointure/public/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/pointure/public/icons/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
 }
