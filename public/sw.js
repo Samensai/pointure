@@ -1,17 +1,9 @@
-/* ── Pointure · Service Worker ── */
-
-const CACHE = 'pointure-v1';
+const CACHE = 'pointure-v2';
 const ASSETS = [
-  '/',
-  '/index.html',
-  '/src/ui/skeu.css',
-  '/src/ui/components.js',
-  '/src/app.js',
-  '/src/modules/camera.js',
-  '/src/modules/colorMixer.js',
-  '/src/modules/library.js',
-  '/src/data/pigments.json',
-  '/public/manifest.json'
+  '/pointure/',
+  '/pointure/index.html',
+  '/pointure/src/ui/glass.css',
+  '/pointure/public/manifest.json'
 ];
 
 self.addEventListener('install', e => {
@@ -32,7 +24,7 @@ self.addEventListener('activate', e => {
 
 self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
-  if (e.request.url.includes('unsplash') || e.request.url.includes('picsum')) return;
+  if (e.request.url.includes('unpkg') || e.request.url.includes('fonts.googleapis')) return;
 
   e.respondWith(
     caches.match(e.request).then(cached => {
