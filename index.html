@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="theme-color" content="#2c1a0e" />
+  <title>Pointure</title>
+  <link rel="manifest" href="public/manifest.json" />
+  <link rel="stylesheet" href="src/ui/skeu.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,500&family=Crimson+Pro:wght@300;400;600&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <!-- ── Header ── -->
+  <header class="app-header">
+    <div class="header-inner">
+      <div class="logo-area">
+        <div class="logo-mark">P</div>
+        <div class="logo-text">
+          <span class="logo-name">Pointure</span>
+          <span class="logo-tagline">l'art à portée de main</span>
+        </div>
+      </div>
+      <button class="icon-btn" id="btn-settings" aria-label="Paramètres">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- ── Main content area ── -->
+  <main class="app-main">
+
+    <!-- PAGE: Calque / Camera -->
+    <section class="page active" id="page-camera">
+      <div class="page-canvas">
+        <div class="canvas-frame">
+          <div class="canvas-placeholder" id="camera-placeholder">
+            <div class="placeholder-icon">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+            </div>
+            <p class="placeholder-text">Activez la caméra pour projeter votre calque</p>
+            <button class="skeu-btn primary" id="btn-start-camera">Activer la caméra</button>
+          </div>
+          <video id="camera-feed" autoplay playsinline muted style="display:none;"></video>
+          <canvas id="overlay-canvas" style="display:none;"></canvas>
+        </div>
+
+        <!-- Controls panel -->
+        <div class="controls-panel" id="camera-controls" style="display:none;">
+          <div class="control-group">
+            <label class="control-label">Opacité</label>
+            <div class="slider-row">
+              <input type="range" class="skeu-slider" id="slider-opacity" min="0" max="100" value="50" />
+              <span class="slider-val" id="val-opacity">50%</span>
+            </div>
+          </div>
+          <div class="control-group">
+            <label class="control-label">Taille</label>
+            <div class="slider-row">
+              <input type="range" class="skeu-slider" id="slider-size" min="20" max="200" value="100" />
+              <span class="slider-val" id="val-size">100%</span>
+            </div>
+          </div>
+          <button class="skeu-btn secondary small" id="btn-pick-image">Choisir une image</button>
+          <input type="file" id="file-input" accept="image/*" style="display:none;" />
+        </div>
+
+        <div class="page-intro" id="camera-intro" style="display:none;">
+          <p class="intro-tip">Pointez votre téléphone vers votre support et ajustez le calque.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- PAGE: Mélange couleurs -->
+    <section class="page" id="page-colors">
+      <div class="page-inner">
+        <div class="section-heading">
+          <h2>Mélange de couleurs</h2>
+          <p class="section-sub">Trouvez le mélange optimal avec vos peintures</p>
+        </div>
+
+        <!-- Colour target picker -->
+        <div class="panel skeu-panel">
+          <div class="panel-title">Couleur cible</div>
+          <div class="color-target-area">
+            <div class="color-preview-wrap">
+              <div class="color-preview" id="target-color-preview" style="background:#e06030;"></div>
+              <span class="color-hex" id="target-color-hex">#e06030</span>
+            </div>
+            <div class="color-actions">
+              <button class="skeu-btn secondary small" id="btn-pick-from-image">Pipette sur image</button>
+              <button class="skeu-btn secondary small" id="btn-open-spectrum">Choisir sur spectre</button>
+            </div>
+          </div>
+          <input type="color" id="color-picker-input" value="#e06030" style="display:none;" />
+        </div>
+
+        <!-- My paints -->
+        <div class="panel skeu-panel">
+          <div class="panel-title">Mes peintures</div>
+          <div class="brand-selector">
+            <select class="skeu-select" id="brand-select">
+              <option value="">Sélectionner une marque…</option>
+              <option value="winsor">Winsor & Newton</option>
+              <option value="sennelier">Sennelier</option>
+              <option value="golden">Golden</option>
+              <option value="lefranc">Lefranc & Bourgeois</option>
+              <option value="other">Autre (manuel)</option>
+            </select>
+          </div>
+          <div class="pigment-input-row">
+            <input type="text" class="skeu-input" id="pigment-code" placeholder="Code pigment (ex: PY150, PR254…)" />
+            <button class="skeu-btn primary small" id="btn-add-pigment">Ajouter</button>
+          </div>
+          <div class="my-paints-list" id="my-paints-list">
+            <!-- dynamic -->
+            <div class="paint-chip-empty">Aucune peinture ajoutée</div>
+          </div>
+        </div>
+
+        <!-- Result -->
+        <div class="panel skeu-panel result-panel" id="mix-result" style="display:none;">
+          <div class="panel-title">Mélange suggéré</div>
+          <div class="mix-result-inner" id="mix-result-inner"></div>
+          <div class="proximity-bar-wrap">
+            <div class="proximity-label">Proximité estimée</div>
+            <div class="proximity-bar-bg">
+              <div class="proximity-bar-fill" id="proximity-fill" style="width:0%;"></div>
+            </div>
+            <span class="proximity-pct" id="proximity-pct">—</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PAGE: Bibliothèque -->
+    <section class="page" id="page-library">
+      <div class="page-inner">
+        <div class="section-heading">
+          <h2>Bibliothèque</h2>
+          <p class="section-sub">Trouvez votre prochaine source d'inspiration</p>
+        </div>
+        <div class="search-bar-wrap">
+          <div class="skeu-search">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <input type="text" class="search-input" id="library-search" placeholder="Paysage, portrait, nature morte…" />
+          </div>
+          <button class="skeu-btn primary" id="btn-search-images">Rechercher</button>
+        </div>
+
+        <div class="categories-row">
+          <button class="cat-chip active" data-q="landscape painting">Paysages</button>
+          <button class="cat-chip" data-q="portrait painting">Portraits</button>
+          <button class="cat-chip" data-q="still life painting">Nature morte</button>
+          <button class="cat-chip" data-q="abstract art">Abstrait</button>
+          <button class="cat-chip" data-q="flowers painting">Fleurs</button>
+        </div>
+
+        <div class="image-grid" id="image-grid">
+          <div class="grid-placeholder">
+            <p>Lancez une recherche pour découvrir des références</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ── Bottom Nav ── -->
+  <nav class="bottom-nav">
+    <button class="nav-tab active" data-page="camera">
+      <span class="nav-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+      </span>
+      <span class="nav-label">Calque</span>
+    </button>
+    <button class="nav-tab" data-page="colors">
+      <span class="nav-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="13.5" cy="6.5" r="1.5"/><circle cx="17.5" cy="10.5" r="1.5"/><circle cx="8.5" cy="7.5" r="1.5"/><circle cx="6.5" cy="12.5" r="1.5"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg>
+      </span>
+      <span class="nav-label">Couleurs</span>
+    </button>
+    <button class="nav-tab" data-page="library">
+      <span class="nav-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      </span>
+      <span class="nav-label">Bibliothèque</span>
+    </button>
+  </nav>
+
+  <!-- ── Image viewer modal ── -->
+  <div class="modal-overlay" id="image-modal" style="display:none;">
+    <div class="modal-box">
+      <img class="modal-img" id="modal-img-src" src="" alt="" />
+      <div class="modal-actions">
+        <button class="skeu-btn primary" id="btn-use-as-reference">Utiliser comme référence</button>
+        <button class="skeu-btn secondary" id="btn-close-modal">Fermer</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="src/ui/components.js"></script>
+  <script src="src/modules/camera.js"></script>
+  <script src="src/modules/colorMixer.js"></script>
+  <script src="src/modules/library.js"></script>
+  <script src="src/app.js"></script>
+</body>
+</html>
