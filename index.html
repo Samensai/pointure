@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="theme-color" content="#06050f" />
   <title>Pointure</title>
-  <link rel="manifest" href="pointure/public/manifest.json" />
+  <link rel="manifest" href="public/manifest.json" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="src/ui/glass.css" />
 </head>
@@ -116,18 +116,63 @@
       const [zoom, setZoom] = useState(100);
       const [active, setActive] = useState(false);
       const [image, setImage] = useState(null);
+      const [rotation, setRotation] = useState(0);
+      const [mirror, setMirror] = useState(false);
+      const [grid, setGrid] = useState(false);
       const fileRef = useRef();
       const videoRef = useRef();
       const streamRef = useRef();
+      const viewfinderRef = useRef();
+
+      // Pinch-to-zoom
+      useEffect(() => {
+        const el = viewfinderRef.current;
+        if (!el) return;
+        let initialDist = null;
+        let initialZoom = zoom;
+        const onTouchStart = e => {
+          if (e.touches.length === 2) {
+            initialDist = Math.hypot(
+              e.touches[0].clientX - e.touches[1].clientX,
+              e.touches[0].clientY - e.touches[1].clientY
+            );
+            initialZoom = zoom;
+          }
+        };
+        const onTouchMove = e => {
+          if (e.touches.length === 2 && initialDist) {
+            const dist = Math.hypot(
+              e.touches[0].clientX - e.touches[1].clientX,
+              e.touches[0].clientY - e.touches[1].clientY
+            );
+            const next = Math.round(Math.min(200, Math.max(40, initialZoom * (dist / initialDist))));
+            setZoom(next);
+          }
+        };
+        const onTouchEnd = () => { initialDist = null; };
+        el.addEventListener('touchstart', onTouchStart, { passive: true });
+        el.addEventListener('touchmove', onTouchMove, { passive: true });
+        el.addEventListener('touchend', onTouchEnd, { passive: true });
+        return () => {
+          el.removeEventListener('touchstart', onTouchStart);
+          el.removeEventListener('touchmove', onTouchMove);
+          el.removeEventListener('touchend', onTouchEnd);
+        };
+      }, [zoom]);
 
       const startCamera = async () => {
         try {
-          const s = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } }, audio: false });
+          const s = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: { ideal: 'environment' }, width: { ideal: 1920 } },
+            audio: false
+          });
           streamRef.current = s;
           videoRef.current.srcObject = s;
           await videoRef.current.play();
           setActive(true);
-        } catch { alert("Impossible d'accéder à la caméra."); }
+        } catch (err) {
+          alert("Impossible d'accéder à la caméra. Vérifiez les autorisations dans Réglages > Safari.");
+        }
       };
 
       const stopCamera = () => {
@@ -135,47 +180,97 @@
         setActive(false);
       };
 
+      const handleImageImport = e => {
+        const f = e.target.files[0];
+        if (!f) return;
+        setImage(URL.createObjectURL(f));
+        // Lance automatiquement la caméra si pas encore active
+        if (!active) startCamera();
+      };
+
+      const overlayTransform = [
+        `scale(${zoom / 100})`,
+        `rotate(${rotation}deg)`,
+        mirror ? 'scaleX(-1)' : '',
+      ].filter(Boolean).join(' ');
+
       return (
         <div className="screen" style={{ height: '100%', display: 'flex', flexDirection: 'column', gap: 12, padding: '12px 16px 0' }}>
           <LG r={22} style={{ flex: 1, minHeight: 0 }} innerStyle={{ height: '100%' }}>
-            <div style={{ height: '100%', position: 'relative', overflow: 'hidden', borderRadius: 21, background: 'linear-gradient(160deg,#0d1060 0%,#091448 50%,#160940 100%)' }}>
-              {[33, 66].map(p => <div key={`h${p}`} style={{ position: 'absolute', left: `${p}%`, top: 0, bottom: 0, borderLeft: '1px solid rgba(255,255,255,.05)' }} />)}
-              {[33, 66].map(p => <div key={`v${p}`} style={{ position: 'absolute', top: `${p}%`, left: 0, right: 0, borderTop: '1px solid rgba(255,255,255,.05)' }} />)}
+            <div ref={viewfinderRef} style={{ height: '100%', position: 'relative', overflow: 'hidden', borderRadius: 21, background: 'linear-gradient(160deg,#0d1060 0%,#091448 50%,#160940 100%)' }}>
 
+              {/* Grille */}
+              {grid && [33, 66].map(p => <div key={`h${p}`} style={{ position: 'absolute', left: `${p}%`, top: 0, bottom: 0, borderLeft: '1px solid rgba(255,255,255,.12)', zIndex: 3 }} />)}
+              {grid && [33, 66].map(p => <div key={`v${p}`} style={{ position: 'absolute', top: `${p}%`, left: 0, right: 0, borderTop: '1px solid rgba(255,255,255,.12)', zIndex: 3 }} />)}
+
+              {/* Flux caméra */}
               <video ref={videoRef} playsInline muted style={{
                 position: 'absolute', inset: 0, width: '100%', height: '100%',
-                objectFit: 'cover', display: active ? 'block' : 'none',
+                objectFit: 'cover',
+                display: active ? 'block' : 'none',
+                zIndex: 1,
               }} />
 
+              {/* Écran vide si pas de caméra */}
+              {!active && (
+                <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 12, zIndex: 1 }}>
+                  <div style={{ fontSize: 40, opacity: .3 }}>📷</div>
+                  <span style={{ color: 'rgba(255,255,255,.35)', fontSize: 13, textAlign: 'center', padding: '0 24px' }}>
+                    {image ? 'Caméra en cours de démarrage…' : 'Importez une image ou démarrez la caméra'}
+                  </span>
+                </div>
+              )}
+
+              {/* Calque image superposé */}
               {image && (
                 <div style={{
-                  position: 'absolute', inset: 16, borderRadius: 14,
-                  transform: `scale(${zoom / 100})`, transformOrigin: 'center',
-                  opacity: opacity / 100, transition: 'opacity .12s, transform .1s',
-                  backgroundImage: `url(${image})`, backgroundSize: 'cover', backgroundPosition: 'center',
-                }} />
+                  position: 'absolute', inset: 0,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  zIndex: 2, pointerEvents: 'none',
+                }}>
+                  <img src={image} alt="calque" style={{
+                    maxWidth: '100%', maxHeight: '100%',
+                    objectFit: 'contain',
+                    transform: overlayTransform,
+                    transformOrigin: 'center',
+                    opacity: opacity / 100,
+                    transition: 'opacity .12s',
+                  }} />
+                </div>
               )}
 
               {/* Crosshair */}
-              <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', pointerEvents: 'none' }}>
-                {[-1, 1].map(d => <div key={d} style={{ position: 'absolute', width: 24, height: 1.5, background: 'rgba(255,255,255,.7)', top: -0.75, [d > 0 ? 'left' : 'right']: 8 }} />)}
-                {[-1, 1].map(d => <div key={d} style={{ position: 'absolute', height: 24, width: 1.5, background: 'rgba(255,255,255,.7)', left: -0.75, [d > 0 ? 'top' : 'bottom']: 8 }} />)}
-                <div style={{ width: 10, height: 10, border: '1.5px solid rgba(255,255,255,.8)', borderRadius: '50%', position: 'absolute', top: -5, left: -5 }} />
+              <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', pointerEvents: 'none', zIndex: 4 }}>
+                {[-1, 1].map(d => <div key={d} style={{ position: 'absolute', width: 24, height: 1.5, background: 'rgba(255,255,255,.6)', top: -0.75, [d > 0 ? 'left' : 'right']: 8 }} />)}
+                {[-1, 1].map(d => <div key={d} style={{ position: 'absolute', height: 24, width: 1.5, background: 'rgba(255,255,255,.6)', left: -0.75, [d > 0 ? 'top' : 'bottom']: 8 }} />)}
+                <div style={{ width: 10, height: 10, border: '1.5px solid rgba(255,255,255,.7)', borderRadius: '50%', position: 'absolute', top: -5, left: -5 }} />
               </div>
 
-              <div style={{ position: 'absolute', top: 12, left: 12 }}>
+              {/* Badge statut */}
+              <div style={{ position: 'absolute', top: 12, left: 12, zIndex: 5 }}>
                 <LG r={16} style={{ display: 'inline-block' }} innerStyle={{ padding: '6px 12px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                     <div style={{ width: 7, height: 7, borderRadius: '50%', background: active ? '#34d399' : '#f87171', boxShadow: active ? '0 0 8px #34d399' : '0 0 8px #f87171' }} />
-                    <span style={{ color: 'white', fontSize: 12, fontWeight: 600 }}>{active ? 'Projection active' : 'Inactif'}</span>
+                    <span style={{ color: 'white', fontSize: 12, fontWeight: 600 }}>{active ? 'Caméra active' : 'Inactif'}</span>
                   </div>
                 </LG>
               </div>
-              <div style={{ position: 'absolute', top: 12, right: 12 }}>
+
+              {/* Badge zoom */}
+              <div style={{ position: 'absolute', top: 12, right: 12, zIndex: 5 }}>
                 <LG r={14} style={{ display: 'inline-block' }} innerStyle={{ padding: '5px 10px' }}>
                   <span style={{ color: 'rgba(255,255,255,.9)', fontSize: 12, fontWeight: 700 }}>{zoom}%</span>
                 </LG>
               </div>
+
+              {/* Hint pinch si image chargée */}
+              {image && active && (
+                <div style={{ position: 'absolute', bottom: 12, left: '50%', transform: 'translateX(-50%)', zIndex: 5 }}>
+                  <LG r={12} style={{ display: 'inline-block' }} innerStyle={{ padding: '4px 10px' }}>
+                    <span style={{ color: 'rgba(255,255,255,.5)', fontSize: 10 }}>Pincez pour zoomer</span>
+                  </LG>
+                </div>
+              )}
             </div>
           </LG>
 
@@ -186,18 +281,28 @@
               <div style={{ display: 'flex', gap: 8 }}>
                 <LG r={14} style={{ flex: 1 }}>
                   <button onClick={() => fileRef.current.click()} style={{ width: '100%', padding: '10px 0', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'center' }}>
-                    <div style={{ color: 'rgba(255,255,255,.9)', fontSize: 17, marginBottom: 2 }}>🖼</div>
-                    <div style={{ color: 'rgba(255,255,255,.45)', fontSize: 10, fontWeight: 500 }}>Image</div>
+                    <div style={{ color: image ? '#a78bfa' : 'rgba(255,255,255,.9)', fontSize: 17, marginBottom: 2 }}>🖼</div>
+                    <div style={{ color: image ? '#a78bfa' : 'rgba(255,255,255,.45)', fontSize: 10, fontWeight: 500 }}>{image ? 'Changer' : 'Image'}</div>
                   </button>
                 </LG>
-                {[{ i: '↺', l: 'Rotation' }, { i: '⊞', l: 'Grille' }, { i: '⤡', l: 'Miroir' }].map(b => (
-                  <LG key={b.i} r={14} style={{ flex: 1 }}>
-                    <div style={{ padding: '10px 0', textAlign: 'center', cursor: 'pointer' }}>
-                      <div style={{ color: 'rgba(255,255,255,.9)', fontSize: 17, marginBottom: 2 }}>{b.i}</div>
-                      <div style={{ color: 'rgba(255,255,255,.45)', fontSize: 10, fontWeight: 500 }}>{b.l}</div>
-                    </div>
-                  </LG>
-                ))}
+                <LG r={14} style={{ flex: 1 }}>
+                  <button onClick={() => setRotation(r => (r + 90) % 360)} style={{ width: '100%', padding: '10px 0', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'center' }}>
+                    <div style={{ color: 'rgba(255,255,255,.9)', fontSize: 17, marginBottom: 2 }}>↺</div>
+                    <div style={{ color: 'rgba(255,255,255,.45)', fontSize: 10, fontWeight: 500 }}>Rotation</div>
+                  </button>
+                </LG>
+                <LG r={14} style={{ flex: 1 }}>
+                  <button onClick={() => setGrid(g => !g)} style={{ width: '100%', padding: '10px 0', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'center' }}>
+                    <div style={{ color: grid ? '#34d399' : 'rgba(255,255,255,.9)', fontSize: 17, marginBottom: 2 }}>⊞</div>
+                    <div style={{ color: grid ? '#34d399' : 'rgba(255,255,255,.45)', fontSize: 10, fontWeight: 500 }}>Grille</div>
+                  </button>
+                </LG>
+                <LG r={14} style={{ flex: 1 }}>
+                  <button onClick={() => setMirror(m => !m)} style={{ width: '100%', padding: '10px 0', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'center' }}>
+                    <div style={{ color: mirror ? '#34d399' : 'rgba(255,255,255,.9)', fontSize: 17, marginBottom: 2 }}>⤡</div>
+                    <div style={{ color: mirror ? '#34d399' : 'rgba(255,255,255,.45)', fontSize: 10, fontWeight: 500 }}>Miroir</div>
+                  </button>
+                </LG>
               </div>
               <LG r={14} innerStyle={{ padding: '1px' }}>
                 <button onClick={active ? stopCamera : startCamera} style={{
@@ -207,13 +312,13 @@
                     : 'linear-gradient(135deg,rgba(50,180,120,.25),rgba(30,160,100,.15))',
                   border: 'none', cursor: 'pointer', color: 'white', fontSize: 14, fontWeight: 600,
                 }}>
-                  {active ? '⏸ Suspendre projection' : '▶ Démarrer projection'}
+                  {active ? '⏸ Suspendre caméra' : '▶ Démarrer caméra'}
                 </button>
               </LG>
             </div>
           </LG>
           <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }}
-            onChange={e => { const f = e.target.files[0]; if (f) setImage(URL.createObjectURL(f)); }} />
+            onChange={handleImageImport} />
         </div>
       );
     }
@@ -457,7 +562,6 @@
 
       return (
         <div style={{ position: 'fixed', inset: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-          
           {/* Animated background */}
           <div style={{ position: 'fixed', inset: 0, zIndex: 0 }}>
             <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(160deg,#0e0b3d 0%,#17108a 20%,#0a1460 40%,#1a0960 65%,#07082a 100%)' }} />
@@ -475,11 +579,10 @@
               }} />
             ))}
           </div>
-      
+
           {/* App shell */}
-          <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, paddingTop: 'env(safe-area-inset-top,0px)' }}>
-            
-            {/* Header — fixe */}
+          <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', minHeight: '100vh', paddingTop: 'env(safe-area-inset-top,0px)' }}>
+            {/* Header */}
             <div style={{ padding: '12px 18px 8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
               <div>
                 <div style={{ color: 'rgba(255,255,255,.38)', fontSize: 10, fontWeight: 700, letterSpacing: 2.5, textTransform: 'uppercase' }}>Application</div>
@@ -489,19 +592,18 @@
                 <span style={{ color: 'rgba(255,255,255,.8)', fontSize: 13, fontWeight: 500 }}>v0.1 PWA</span>
               </LG>
             </div>
-      
+
             {/* Screen content — défile */}
             <div style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', minHeight: 0, WebkitOverflowScrolling: 'touch' }}>
               {tab === 'calque'   && <TabCalque />}
               {tab === 'couleurs' && <TabCouleurs />}
               {tab === 'biblio'   && <TabBibliotheque />}
             </div>
-      
-            {/* Tab bar — fixe en bas */}
-            <div style={{ flexShrink: 0, padding: '6px 0', paddingBottom: 'calc(env(safe-area-inset-bottom,0px) + 8px)', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+
+            {/* Tab bar — fixe en bas, collée à la barre système */}
+            <div style={{ flexShrink: 0, padding: '4px 0 0', paddingBottom: 'env(safe-area-inset-bottom, 4px)', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
               <TabBar tab={tab} setTab={switchTab} />
             </div>
-      
           </div>
         </div>
       );
