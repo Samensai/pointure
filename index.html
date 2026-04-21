@@ -14,15 +14,14 @@
 <body>
   <div id="root"></div>
 
-  <!-- React + Babel (prototype rapide, à remplacer par un build tool en prod) -->
   <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" crossorigin></script>
   <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin></script>
+  <script src="src/data/paintData.js"></script>
 
   <script type="text/babel">
-    const { useState, useRef, useEffect, useCallback } = React;
+    const { useState, useRef, useEffect } = React;
 
-    /* ── Liquid Glass wrapper ── */
     function LG({ children, r = 26, style = {}, innerStyle = {} }) {
       return (
         <div className="lg-wrap" style={{ '--r': r + 'px', ...style }}>
@@ -33,57 +32,86 @@
       );
     }
 
-    /* ── Paint Blob Button ── */
     function PaintBlob({ color, size = 44, active, onClick }) {
       const [ripples, setRipples] = useState([]);
+
       const fire = () => {
         const id = Date.now();
         setRipples(r => [...r, id]);
         setTimeout(() => setRipples(r => r.filter(x => x !== id)), 700);
-        onClick && onClick();
+        if (onClick) onClick();
       };
+
       return (
-        <button onClick={fire} style={{
-          width: size, height: size, borderRadius: '50%',
-          position: 'relative', overflow: 'hidden',
-          cursor: 'pointer', outline: 'none', flexShrink: 0,
-          background: `linear-gradient(148deg,rgba(255,255,255,.6) 0%,rgba(255,255,255,.1) 50%,rgba(255,255,255,.25) 100%)`,
-          padding: '1.5px',
-          boxShadow: active
-            ? `0 0 0 3px rgba(255,255,255,.35), 0 6px 24px ${color}99, 0 2px 8px rgba(0,0,0,.4)`
-            : `0 4px 18px ${color}66, 0 2px 6px rgba(0,0,0,.35)`,
-          transform: active ? 'scale(1.08)' : 'scale(1)',
-          transition: 'transform .18s, box-shadow .18s',
-          border: 'none',
-        }}>
-          <div style={{
-            position: 'absolute', inset: '1.5px', borderRadius: '50%',
-            background: `radial-gradient(circle at 40% 38%, ${color}ff 0%, ${color}cc 55%, ${color}88 100%)`,
-            animation: 'paintBob 3.5s ease-in-out infinite',
-          }} />
-          <div style={{
-            position: 'absolute', top: '6%', left: '10%',
-            width: '55%', height: '45%',
-            borderRadius: '60% 40% 50% 60%',
-            background: 'rgba(255,255,255,.38)', filter: 'blur(3px)', pointerEvents: 'none',
-          }} />
+        <button
+          onClick={fire}
+          style={{
+            width: size,
+            height: size,
+            borderRadius: '50%',
+            position: 'relative',
+            overflow: 'hidden',
+            cursor: 'pointer',
+            outline: 'none',
+            flexShrink: 0,
+            background: 'linear-gradient(148deg,rgba(255,255,255,.6) 0%,rgba(255,255,255,.1) 50%,rgba(255,255,255,.25) 100%)',
+            padding: '1.5px',
+            boxShadow: active
+              ? `0 0 0 3px rgba(255,255,255,.35), 0 6px 24px ${color}99, 0 2px 8px rgba(0,0,0,.4)`
+              : `0 4px 18px ${color}66, 0 2px 6px rgba(0,0,0,.35)`,
+            transform: active ? 'scale(1.08)' : 'scale(1)',
+            transition: 'transform .18s, box-shadow .18s',
+            border: 'none',
+          }}
+        >
+          <div
+            style={{
+              position: 'absolute',
+              inset: '1.5px',
+              borderRadius: '50%',
+              background: `radial-gradient(circle at 40% 38%, ${color}ff 0%, ${color}cc 55%, ${color}88 100%)`,
+              animation: 'paintBob 3.5s ease-in-out infinite',
+            }}
+          />
+          <div
+            style={{
+              position: 'absolute',
+              top: '6%',
+              left: '10%',
+              width: '55%',
+              height: '45%',
+              borderRadius: '60% 40% 50% 60%',
+              background: 'rgba(255,255,255,.38)',
+              filter: 'blur(3px)',
+              pointerEvents: 'none',
+            }}
+          />
           {ripples.map(id => (
-            <div key={id} style={{
-              position: 'absolute', top: '50%', left: '50%',
-              width: size * .4, height: size * .4,
-              marginLeft: -size * .2, marginTop: -size * .2,
-              borderRadius: '50%', background: 'rgba(255,255,255,.45)',
-              animation: 'ripple .7s ease-out forwards', pointerEvents: 'none',
-            }} />
+            <div
+              key={id}
+              style={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                width: size * .4,
+                height: size * .4,
+                marginLeft: -size * .2,
+                marginTop: -size * .2,
+                borderRadius: '50%',
+                background: 'rgba(255,255,255,.45)',
+                animation: 'ripple .7s ease-out forwards',
+                pointerEvents: 'none',
+              }}
+            />
           ))}
         </button>
       );
     }
 
-    /* ── Glass Slider ── */
     function GlassSlider({ value, onChange, min = 0, max = 100, label, unit = '%', accent }) {
       const pct = ((value - min) / (max - min)) * 100;
       const grad = accent || 'rgba(200,180,255,1)';
+
       return (
         <div>
           {label && (
@@ -94,14 +122,21 @@
           )}
           <div style={{ position: 'relative', height: 22, display: 'flex', alignItems: 'center' }}>
             <div className="slider-track" style={{ width: '100%', position: 'relative' }}>
-              <div className="slider-fill" style={{
-                width: `${pct}%`,
-                background: `linear-gradient(90deg,rgba(80,60,200,.7),${grad})`,
-                boxShadow: `0 0 10px ${grad}77`,
-              }} />
+              <div
+                className="slider-fill"
+                style={{
+                  width: `${pct}%`,
+                  background: `linear-gradient(90deg,rgba(80,60,200,.7),${grad})`,
+                  boxShadow: `0 0 10px ${grad}77`,
+                }}
+              />
               <div className="slider-thumb" style={{ left: `${pct}%` }} />
             </div>
-            <input type="range" min={min} max={max} value={value}
+            <input
+              type="range"
+              min={min}
+              max={max}
+              value={value}
               onChange={e => onChange(Number(e.target.value))}
               style={{ position: 'absolute', inset: 0, width: '100%' }}
             />
@@ -110,89 +145,39 @@
       );
     }
 
-    /* ── Tab: Calque AR ── */
-    function TabCalque() {
-      const [opacity, setOpacity] = useState(65);
-      const [zoom, setZoom] = useState(100);
-      const [active, setActive] = useState(false);
-      const [image, setImage] = useState(null);
-      const [rotation, setRotation] = useState(0);
-      const [mirror, setMirror] = useState(false);
-      const [grid, setGrid] = useState(false);
-      const fileRef = useRef();
-      const videoRef = useRef();
-      const streamRef = useRef();
-      const viewfinderRef = useRef();
+    function ActionButton({ label, sublabel, onClick, danger = false }) {
+      return (
+        <LG r={18}>
+          <button
+            onClick={onClick}
+            style={{
+              width: '100%',
+              padding: '19px 18px',
+              border: 'none',
+              background: danger
+                ? 'linear-gradient(135deg,rgba(154,34,68,.44),rgba(230,90,130,.14) 38%,rgba(48,16,30,.2) 100%)'
+                : 'linear-gradient(135deg,rgba(170,214,255,.18),rgba(86,126,255,.24) 34%,rgba(18,40,122,.2) 100%)',
+              color: 'white',
+              cursor: 'pointer',
+              textAlign: 'left',
+              borderRadius: 17,
+              boxShadow: danger
+                ? 'inset 0 1px 0 rgba(255,255,255,.18), inset 0 -24px 34px rgba(72,0,18,.2)'
+                : 'inset 0 1px 0 rgba(255,255,255,.22), inset 0 -24px 34px rgba(14,32,108,.24)',
+            }}
+          >
+            <div style={{ fontSize: 16, fontWeight: 700, letterSpacing: -.2, textShadow: '0 2px 10px rgba(8,18,54,.35)' }}>{label}</div>
+            {sublabel && (
+              <div style={{ marginTop: 7, color: 'rgba(245,249,255,.82)', textShadow: '0 1px 8px rgba(8,18,54,.28)', fontSize: 12, lineHeight: 1.45 }}>
+                {sublabel}
+              </div>
+            )}
+          </button>
+        </LG>
+      );
+    }
 
-      // Pinch-to-zoom
-      useEffect(() => {
-        const el = viewfinderRef.current;
-        if (!el) return;
-        let initialDist = null;
-        let initialZoom = zoom;
-        const onTouchStart = e => {
-          if (e.touches.length === 2) {
-            initialDist = Math.hypot(
-              e.touches[0].clientX - e.touches[1].clientX,
-              e.touches[0].clientY - e.touches[1].clientY
-            );
-            initialZoom = zoom;
-          }
-        };
-        const onTouchMove = e => {
-          if (e.touches.length === 2 && initialDist) {
-            const dist = Math.hypot(
-              e.touches[0].clientX - e.touches[1].clientX,
-              e.touches[0].clientY - e.touches[1].clientY
-            );
-            const next = Math.round(Math.min(200, Math.max(40, initialZoom * (dist / initialDist))));
-            setZoom(next);
-          }
-        };
-        const onTouchEnd = () => { initialDist = null; };
-        el.addEventListener('touchstart', onTouchStart, { passive: true });
-        el.addEventListener('touchmove', onTouchMove, { passive: true });
-        el.addEventListener('touchend', onTouchEnd, { passive: true });
-        return () => {
-          el.removeEventListener('touchstart', onTouchStart);
-          el.removeEventListener('touchmove', onTouchMove);
-          el.removeEventListener('touchend', onTouchEnd);
-        };
-      }, [zoom]);
-
-      const startCamera = async () => {
-        try {
-          const s = await navigator.mediaDevices.getUserMedia({
-            video: { facingMode: { ideal: 'environment' }, width: { ideal: 1920 } },
-            audio: false
-          });
-          streamRef.current = s;
-          videoRef.current.srcObject = s;
-          setActive(true);
-          // autoPlay sur l'élément gère la lecture ; play() en best-effort pour les navigateurs sans autoPlay
-          videoRef.current.play().catch(() => {});
-        } catch (err) {
-          alert("Impossible d'accéder à la caméra. Vérifiez les autorisations dans Réglages > Safari.");
-        }
-      };
-
-      const stopCamera = () => {
-        streamRef.current?.getTracks().forEach(t => t.stop());
-        if (videoRef.current) videoRef.current.srcObject = null; // libère le stream → vidéo redevient transparente
-        setActive(false);
-      };
-
-      const handleImageImport = e => {
-        const f = e.target.files[0];
-        if (!f) return;
-        // startCamera() appelé en synchrone ici = contexte de geste utilisateur valide pour iOS Safari
-        if (!active) startCamera();
-        // FileReader → data URL : survit à toute suspension de l'app (blob URLs révoqués sur iOS)
-        const reader = new FileReader();
-        reader.onload = ev => setImage(ev.target.result);
-        reader.readAsDataURL(f);
-      };
-
+    function OverlayArtwork({ image, opacity, zoom, rotation, mirror, grid, fullscreen = false }) {
       const overlayTransform = [
         `scale(${zoom / 100})`,
         `rotate(${rotation}deg)`,
@@ -200,277 +185,1431 @@
       ].filter(Boolean).join(' ');
 
       return (
-        <div className="screen" style={{ height: '100%', display: 'flex', flexDirection: 'column', gap: 12, padding: '12px 16px 0' }}>
-          <LG r={22} style={{ flex: 1, minHeight: 0 }} innerStyle={{ height: '100%', backdropFilter: 'none', WebkitBackdropFilter: 'none' }}>
-            <div ref={viewfinderRef} style={{ height: '100%', position: 'relative', overflow: 'hidden', borderRadius: 21, background: 'linear-gradient(160deg,#0d1060 0%,#091448 50%,#160940 100%)' }}>
+        <div
+          style={{
+            position: 'relative',
+            height: '100%',
+            minHeight: fullscreen ? 0 : 360,
+            borderRadius: fullscreen ? 0 : 26,
+            overflow: 'hidden',
+            background: fullscreen
+              ? '#000'
+              : 'linear-gradient(160deg,rgba(205,225,255,.24) 0%,rgba(65,98,234,.22) 28%,rgba(15,18,78,.82) 62%,rgba(6,10,32,.94) 100%)',
+          }}
+        >
+          {grid && [33, 66].map(p => (
+            <div key={`gv-${p}`} style={{ position: 'absolute', top: `${p}%`, left: 0, right: 0, borderTop: '1px solid rgba(255,255,255,.12)', zIndex: 3 }} />
+          ))}
+          {grid && [33, 66].map(p => (
+            <div key={`gh-${p}`} style={{ position: 'absolute', left: `${p}%`, top: 0, bottom: 0, borderLeft: '1px solid rgba(255,255,255,.12)', zIndex: 3 }} />
+          ))}
 
-              {/* Grille */}
-              {grid && [33, 66].map(p => <div key={`h${p}`} style={{ position: 'absolute', left: `${p}%`, top: 0, bottom: 0, borderLeft: '1px solid rgba(255,255,255,.12)', zIndex: 3 }} />)}
-              {grid && [33, 66].map(p => <div key={`v${p}`} style={{ position: 'absolute', top: `${p}%`, left: 0, right: 0, borderTop: '1px solid rgba(255,255,255,.12)', zIndex: 3 }} />)}
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: fullscreen ? '5vh 4vw' : 24,
+              zIndex: 2,
+              pointerEvents: 'none',
+            }}
+          >
+            <img
+              src={image}
+              alt="calque"
+              style={{
+                maxWidth: '100%',
+                maxHeight: '100%',
+                objectFit: 'contain',
+                transform: overlayTransform,
+                transformOrigin: 'center',
+                opacity: opacity / 100,
+                transition: 'opacity .12s, transform .18s',
+                filter: fullscreen ? 'drop-shadow(0 20px 40px rgba(0,0,0,.45))' : 'drop-shadow(0 20px 30px rgba(10,8,40,.32))',
+              }}
+            />
+          </div>
 
-              {/* Flux caméra — autoPlay+muted+playsInline = autorisé sur iOS sans geste.
-                  translateZ(0) force une couche GPU propre : iOS Safari ne composite pas
-                  les <video> correctement à l'intérieur d'un backdrop-filter parent. */}
-              <video ref={videoRef} playsInline muted autoPlay style={{
-                position: 'absolute', inset: 0, width: '100%', height: '100%',
-                objectFit: 'cover',
-                zIndex: 1,
-                transform: 'translateZ(0)', WebkitTransform: 'translateZ(0)',
-              }} />
-
-              {/* Écran vide si pas de caméra */}
-              {!active && (
-                <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 12, zIndex: 1 }}>
-                  <div style={{ fontSize: 40, opacity: .3 }}>📷</div>
-                  <span style={{ color: 'rgba(255,255,255,.35)', fontSize: 13, textAlign: 'center', padding: '0 24px' }}>
-                    {image ? 'Ouverture de la caméra…' : 'Importez une image ou démarrez la caméra'}
-                  </span>
-                </div>
-              )}
-
-              {/* Calque image superposé */}
-              {image && (
-                <div style={{
-                  position: 'absolute', inset: 0,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  zIndex: 2, pointerEvents: 'none',
-                }}>
-                  <img src={image} alt="calque" style={{
-                    maxWidth: '100%', maxHeight: '100%',
-                    objectFit: 'contain',
-                    transform: overlayTransform,
-                    transformOrigin: 'center',
-                    opacity: opacity / 100,
-                    transition: 'opacity .12s',
-                  }} />
-                </div>
-              )}
-
-              {/* Crosshair */}
-              <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', pointerEvents: 'none', zIndex: 4 }}>
-                {[-1, 1].map(d => <div key={d} style={{ position: 'absolute', width: 24, height: 1.5, background: 'rgba(255,255,255,.6)', top: -0.75, [d > 0 ? 'left' : 'right']: 8 }} />)}
-                {[-1, 1].map(d => <div key={d} style={{ position: 'absolute', height: 24, width: 1.5, background: 'rgba(255,255,255,.6)', left: -0.75, [d > 0 ? 'top' : 'bottom']: 8 }} />)}
-                <div style={{ width: 10, height: 10, border: '1.5px solid rgba(255,255,255,.7)', borderRadius: '50%', position: 'absolute', top: -5, left: -5 }} />
-              </div>
-
-              {/* Badge statut */}
-              <div style={{ position: 'absolute', top: 12, left: 12, zIndex: 5 }}>
-                <LG r={16} style={{ display: 'inline-block' }} innerStyle={{ padding: '6px 12px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <div style={{ width: 7, height: 7, borderRadius: '50%', background: active ? '#34d399' : '#f87171', boxShadow: active ? '0 0 8px #34d399' : '0 0 8px #f87171' }} />
-                    <span style={{ color: 'white', fontSize: 12, fontWeight: 600 }}>{active ? 'Caméra active' : 'Inactif'}</span>
+          {!fullscreen && (
+            <>
+              <div
+                style={{
+                  position: 'absolute',
+                  inset: 0,
+                  background: 'radial-gradient(circle at 50% 24%,rgba(255,255,255,.12),transparent 48%)',
+                  zIndex: 1,
+                }}
+              />
+              <div style={{ position: 'absolute', left: 18, right: 18, bottom: 18, zIndex: 4 }}>
+                <LG r={16} innerStyle={{ padding: '10px 12px' }}>
+                  <div style={{ color: 'rgba(255,255,255,.74)', fontSize: 12, lineHeight: 1.4 }}>
+                    Apercu du calque. Regle-le ici, puis ouvre l'appareil photo quand tu es pret.
                   </div>
                 </LG>
               </div>
-
-              {/* Badge zoom */}
-              <div style={{ position: 'absolute', top: 12, right: 12, zIndex: 5 }}>
-                <LG r={14} style={{ display: 'inline-block' }} innerStyle={{ padding: '5px 10px' }}>
-                  <span style={{ color: 'rgba(255,255,255,.9)', fontSize: 12, fontWeight: 700 }}>{zoom}%</span>
-                </LG>
-              </div>
-
-              {/* Hint pinch si image chargée */}
-              {image && active && (
-                <div style={{ position: 'absolute', bottom: 12, left: '50%', transform: 'translateX(-50%)', zIndex: 5 }}>
-                  <LG r={12} style={{ display: 'inline-block' }} innerStyle={{ padding: '4px 10px' }}>
-                    <span style={{ color: 'rgba(255,255,255,.5)', fontSize: 10 }}>Pincez pour zoomer</span>
-                  </LG>
-                </div>
-              )}
-            </div>
-          </LG>
-
-          <LG r={24} innerStyle={{ padding: '18px 16px' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              <GlassSlider value={opacity} onChange={setOpacity} label="Opacité calque" accent="rgba(160,140,255,1)" />
-              <GlassSlider value={zoom} onChange={setZoom} min={40} max={200} label="Zoom" unit="%" accent="rgba(100,200,255,1)" />
-              <div style={{ display: 'flex', gap: 8 }}>
-                <LG r={14} style={{ flex: 1 }}>
-                  <button onClick={() => fileRef.current.click()} style={{ width: '100%', padding: '10px 0', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'center' }}>
-                    <div style={{ color: image ? '#a78bfa' : 'rgba(255,255,255,.9)', fontSize: 17, marginBottom: 2 }}>🖼</div>
-                    <div style={{ color: image ? '#a78bfa' : 'rgba(255,255,255,.45)', fontSize: 10, fontWeight: 500 }}>{image ? 'Changer' : 'Image'}</div>
-                  </button>
-                </LG>
-                <LG r={14} style={{ flex: 1 }}>
-                  <button onClick={() => setRotation(r => (r + 90) % 360)} style={{ width: '100%', padding: '10px 0', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'center' }}>
-                    <div style={{ color: 'rgba(255,255,255,.9)', fontSize: 17, marginBottom: 2 }}>↺</div>
-                    <div style={{ color: 'rgba(255,255,255,.45)', fontSize: 10, fontWeight: 500 }}>Rotation</div>
-                  </button>
-                </LG>
-                <LG r={14} style={{ flex: 1 }}>
-                  <button onClick={() => setGrid(g => !g)} style={{ width: '100%', padding: '10px 0', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'center' }}>
-                    <div style={{ color: grid ? '#34d399' : 'rgba(255,255,255,.9)', fontSize: 17, marginBottom: 2 }}>⊞</div>
-                    <div style={{ color: grid ? '#34d399' : 'rgba(255,255,255,.45)', fontSize: 10, fontWeight: 500 }}>Grille</div>
-                  </button>
-                </LG>
-                <LG r={14} style={{ flex: 1 }}>
-                  <button onClick={() => setMirror(m => !m)} style={{ width: '100%', padding: '10px 0', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'center' }}>
-                    <div style={{ color: mirror ? '#34d399' : 'rgba(255,255,255,.9)', fontSize: 17, marginBottom: 2 }}>⤡</div>
-                    <div style={{ color: mirror ? '#34d399' : 'rgba(255,255,255,.45)', fontSize: 10, fontWeight: 500 }}>Miroir</div>
-                  </button>
-                </LG>
-              </div>
-              <LG r={14} innerStyle={{ padding: '1px' }}>
-                <button onClick={active ? stopCamera : startCamera} style={{
-                  width: '100%', padding: '13px', borderRadius: 13,
-                  background: active
-                    ? 'linear-gradient(135deg,rgba(200,60,60,.25),rgba(180,40,40,.15))'
-                    : 'linear-gradient(135deg,rgba(50,180,120,.25),rgba(30,160,100,.15))',
-                  border: 'none', cursor: 'pointer', color: 'white', fontSize: 14, fontWeight: 600,
-                }}>
-                  {active ? '⏸ Suspendre caméra' : '▶ Démarrer caméra'}
-                </button>
-              </LG>
-            </div>
-          </LG>
-          <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }}
-            onChange={handleImageImport} />
+            </>
+          )}
         </div>
       );
     }
 
-    /* ── Tab: Couleurs ── */
-    const PIGS = [
-      { code: 'PB29',  name: 'Outremer',     color: '#2244bb' },
-      { code: 'PW6',   name: 'Blanc Titane',  color: '#dddbd5' },
-      { code: 'PY153', name: 'Jaune Nickel',  color: '#c89a28' },
-      { code: 'PR101', name: 'Oxyde Rouge',   color: '#8b3a2a' },
-      { code: 'PBk11', name: 'Noir Oxyde',    color: '#252520' },
-      { code: 'PG7',   name: 'Vert Phtalo',   color: '#1a7a5e' },
-      { code: 'PV19',  name: 'Quinacridone',  color: '#8b2d6e' },
-      { code: 'PO20',  name: 'Cadmium Org.',  color: '#c4521a' },
-    ];
+    function CameraOverlay({ image, opacity, zoom, rotation, mirror, grid, setZoom, onClose }) {
+      const videoRef = useRef(null);
+      const streamRef = useRef(null);
+      const viewfinderRef = useRef(null);
+      const [cameraReady, setCameraReady] = useState(false);
+      const [cameraError, setCameraError] = useState('');
+
+      useEffect(() => {
+        let mounted = true;
+
+        async function startCamera() {
+          try {
+            const stream = await navigator.mediaDevices.getUserMedia({
+              video: {
+                facingMode: { ideal: 'environment' },
+                width: { ideal: 1920 },
+                height: { ideal: 1080 },
+              },
+              audio: false,
+            });
+
+            if (!mounted) {
+              stream.getTracks().forEach(track => track.stop());
+              return;
+            }
+
+            streamRef.current = stream;
+            if (videoRef.current) {
+              videoRef.current.srcObject = stream;
+              videoRef.current.play().catch(() => {});
+            }
+            setCameraReady(true);
+          } catch (error) {
+            setCameraError("Impossible d'acceder a l'appareil photo. Verifie les autorisations du navigateur.");
+          }
+        }
+
+        startCamera();
+
+        return () => {
+          mounted = false;
+          streamRef.current?.getTracks().forEach(track => track.stop());
+          if (videoRef.current) videoRef.current.srcObject = null;
+        };
+      }, []);
+
+      useEffect(() => {
+        const el = viewfinderRef.current;
+        if (!el) return;
+
+        let initialDist = null;
+        let initialZoom = zoom;
+
+        const onTouchStart = event => {
+          if (event.touches.length === 2) {
+            initialDist = Math.hypot(
+              event.touches[0].clientX - event.touches[1].clientX,
+              event.touches[0].clientY - event.touches[1].clientY
+            );
+            initialZoom = zoom;
+          }
+        };
+
+        const onTouchMove = event => {
+          if (event.touches.length === 2 && initialDist) {
+            const dist = Math.hypot(
+              event.touches[0].clientX - event.touches[1].clientX,
+              event.touches[0].clientY - event.touches[1].clientY
+            );
+            const next = Math.round(Math.min(200, Math.max(40, initialZoom * (dist / initialDist))));
+            setZoom(next);
+          }
+        };
+
+        const onTouchEnd = () => {
+          initialDist = null;
+        };
+
+        el.addEventListener('touchstart', onTouchStart, { passive: true });
+        el.addEventListener('touchmove', onTouchMove, { passive: true });
+        el.addEventListener('touchend', onTouchEnd, { passive: true });
+
+        return () => {
+          el.removeEventListener('touchstart', onTouchStart);
+          el.removeEventListener('touchmove', onTouchMove);
+          el.removeEventListener('touchend', onTouchEnd);
+        };
+      }, [zoom, setZoom]);
+
+      return (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 30, background: '#000' }}>
+          <div ref={viewfinderRef} style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
+            <video
+              ref={videoRef}
+              playsInline
+              muted
+              autoPlay
+              style={{
+                position: 'absolute',
+                inset: 0,
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+                zIndex: 1,
+                transform: 'translateZ(0)',
+                WebkitTransform: 'translateZ(0)',
+              }}
+            />
+
+            {!cameraReady && !cameraError && (
+              <div
+                style={{
+                  position: 'absolute',
+                  inset: 0,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'rgba(255,255,255,.68)',
+                  fontSize: 14,
+                  zIndex: 3,
+                }}
+              >
+                Ouverture de l'appareil photo...
+              </div>
+            )}
+
+            <OverlayArtwork
+              image={image}
+              opacity={opacity}
+              zoom={zoom}
+              rotation={rotation}
+              mirror={mirror}
+              grid={grid}
+              fullscreen
+            />
+
+            {cameraError && (
+              <div style={{ position: 'absolute', left: 16, right: 16, bottom: 24, zIndex: 4 }}>
+                <LG r={18} innerStyle={{ padding: '14px 16px' }}>
+                  <div style={{ color: 'white', fontSize: 14, fontWeight: 600, marginBottom: 6 }}>Camera indisponible</div>
+                  <div style={{ color: 'rgba(255,255,255,.68)', fontSize: 12, lineHeight: 1.5 }}>{cameraError}</div>
+                </LG>
+              </div>
+            )}
+          </div>
+
+          <button
+            onClick={onClose}
+            aria-label="Retour"
+            style={{
+              position: 'absolute',
+              top: 'calc(env(safe-area-inset-top, 0px) + 14px)',
+              left: 14,
+              width: 46,
+              height: 46,
+              borderRadius: '50%',
+              border: '1px solid rgba(255,255,255,.18)',
+              background: 'rgba(10,10,20,.42)',
+              color: 'white',
+              cursor: 'pointer',
+              zIndex: 5,
+              fontSize: 24,
+              lineHeight: 1,
+              backdropFilter: 'blur(20px)',
+              WebkitBackdropFilter: 'blur(20px)',
+            }}
+          >
+            ←
+          </button>
+        </div>
+      );
+    }
+
+    function TabCalque({
+      image,
+      opacity,
+      setOpacity,
+      zoom,
+      setZoom,
+      rotation,
+      setRotation,
+      mirror,
+      setMirror,
+      grid,
+      setGrid,
+      onImportImage,
+      onOpenLibrary,
+      onRemoveImage,
+      onOpenCamera,
+    }) {
+      const fileRef = useRef(null);
+
+      const handleImageImport = event => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = loadEvent => onImportImage(loadEvent.target.result);
+        reader.readAsDataURL(file);
+        event.target.value = '';
+      };
+
+      return (
+        <div className="screen" style={{ height: '100%', display: 'flex', flexDirection: 'column', gap: 12, padding: '12px 16px 0', overflowY: 'auto' }}>
+          {!image ? (
+            <>
+              <LG r={28} innerStyle={{ padding: '28px 22px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                  <div style={{ color: 'rgba(240,247,255,.64)', fontSize: 11, fontWeight: 700, letterSpacing: 2.8, textTransform: 'uppercase' }}>
+                    Ecran d'accueil
+                  </div>
+                  <div style={{ color: 'white', fontSize: 30, lineHeight: 1.02, fontWeight: 800, letterSpacing: -1.1, textShadow: '0 8px 24px rgba(140,190,255,.24)' }}>
+                    Choisis d'abord ton modele.
+                  </div>
+                  <div style={{ color: 'rgba(245,249,255,.68)', fontSize: 14, lineHeight: 1.6 }}>
+                    Importe un calque depuis ta galerie ou va chercher une inspiration dans la bibliotheque avant d'ouvrir la camera.
+                  </div>
+                </div>
+              </LG>
+
+              <div style={{ display: 'grid', gap: 10 }}>
+                <ActionButton
+                  label="Importer un modele"
+                  sublabel="Choisir une image depuis l'appareil ou la galerie."
+                  onClick={() => fileRef.current?.click()}
+                />
+                <ActionButton
+                  label="Chercher des inspirations"
+                  sublabel="Ouvrir la bibliotheque puis revenir avec une reference."
+                  onClick={onOpenLibrary}
+                />
+              </div>
+            </>
+          ) : (
+            <>
+              <LG r={26} style={{ flexShrink: 0 }} innerStyle={{ padding: 0 }}>
+                <div style={{ padding: 12 }}>
+                  <div style={{ aspectRatio: '4 / 5' }}>
+                    <OverlayArtwork
+                      image={image}
+                      opacity={opacity}
+                      zoom={zoom}
+                      rotation={rotation}
+                      mirror={mirror}
+                      grid={grid}
+                    />
+                  </div>
+                </div>
+              </LG>
+
+              <ActionButton
+                label="Supprimer"
+                sublabel="Retirer ce calque et revenir a l'accueil."
+                onClick={onRemoveImage}
+                danger
+              />
+
+              <LG r={24} innerStyle={{ padding: '18px 16px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                  <GlassSlider value={opacity} onChange={setOpacity} label="Opacite du calque" accent="rgba(160,140,255,1)" />
+                  <GlassSlider value={zoom} onChange={setZoom} min={40} max={200} label="Zoom" unit="%" accent="rgba(100,200,255,1)" />
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 8 }}>
+                    <LG r={14}>
+                      <button onClick={() => setRotation(value => (value + 90) % 360)} style={{ width: '100%', padding: '10px 0', background: 'linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.01))', border: 'none', cursor: 'pointer', textAlign: 'center', color: 'white', borderRadius: 13 }}>
+                        <div style={{ fontSize: 17, marginBottom: 2 }}>↻</div>
+                        <div style={{ color: 'rgba(255,255,255,.45)', fontSize: 10, fontWeight: 500 }}>Rotation</div>
+                      </button>
+                    </LG>
+                    <LG r={14}>
+                      <button onClick={() => setGrid(value => !value)} style={{ width: '100%', padding: '10px 0', background: 'linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.01))', border: 'none', cursor: 'pointer', textAlign: 'center', color: grid ? '#aef6d3' : 'white', borderRadius: 13 }}>
+                        <div style={{ fontSize: 17, marginBottom: 2 }}>⊞</div>
+                        <div style={{ color: grid ? '#aef6d3' : 'rgba(255,255,255,.45)', fontSize: 10, fontWeight: 500 }}>Grille</div>
+                      </button>
+                    </LG>
+                    <LG r={14}>
+                      <button onClick={() => setMirror(value => !value)} style={{ width: '100%', padding: '10px 0', background: 'linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.01))', border: 'none', cursor: 'pointer', textAlign: 'center', color: mirror ? '#aef6d3' : 'white', borderRadius: 13 }}>
+                        <div style={{ fontSize: 17, marginBottom: 2 }}>⇋</div>
+                        <div style={{ color: mirror ? '#aef6d3' : 'rgba(255,255,255,.45)', fontSize: 10, fontWeight: 500 }}>Miroir</div>
+                      </button>
+                    </LG>
+                  </div>
+                  <ActionButton
+                    label="Ouvrir dans l'appareil photo"
+                    sublabel="Passe en plein ecran avec le calque par-dessus."
+                    onClick={onOpenCamera}
+                  />
+                </div>
+              </LG>
+            </>
+          )}
+
+          <input
+            ref={fileRef}
+            type="file"
+            accept="image/*"
+            style={{ display: 'none' }}
+            onChange={handleImageImport}
+          />
+          <div style={{ height: 12 }} />
+        </div>
+      );
+    }
+
+    const PAINT_DATA = window.PAINT_DATA || { pigments: {}, brands: [], defaultPaintIds: [] };
 
     function hexToRgb(hex) {
       return [parseInt(hex.slice(1, 3), 16), parseInt(hex.slice(3, 5), 16), parseInt(hex.slice(5, 7), 16)];
     }
-    function mixColors(pigs) {
-      const active = pigs.filter(p => p.pct > 0);
-      if (!active.length) return '#444';
-      let r = 0, g = 0, b = 0, t = 0;
-      active.forEach(p => {
-        const [pr, pg, pb] = hexToRgb(p.color);
-        r += Math.sqrt(pr * pr * p.pct); g += Math.sqrt(pg * pg * p.pct); b += Math.sqrt(pb * pb * p.pct); t += p.pct;
-      });
-      const h = v => Math.round((v / t) ** 2).toString(16).padStart(2, '0');
-      return `#${h(r)}${h(g)}${h(b)}`;
+
+    function rgbToHex(rgb) {
+      const [r, g, b] = rgb;
+      const toHex = value => Math.max(0, Math.min(255, Math.round(value))).toString(16).padStart(2, '0');
+      return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
     }
 
-    function TabCouleurs() {
-      const [pigs, setPigs] = useState(PIGS.map((p, i) => ({ ...p, pct: i === 0 ? 40 : i === 1 ? 35 : i === 2 ? 25 : 0 })));
-      const [sel, setSel] = useState(null);
-      const mixed = mixColors(pigs);
-      const total = pigs.reduce((s, p) => s + p.pct, 0);
-      const set = (code, v) => setPigs(prev => prev.map(p => p.code === code ? { ...p, pct: Math.max(0, Math.min(100, v)) } : p));
+    function srgbToLinear(channel) {
+      const value = channel / 255;
+      return value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
+    }
+
+    function linearToSrgb(value) {
+      const clamped = Math.max(0, Math.min(1, value));
+      return clamped <= 0.0031308 ? clamped * 12.92 : 1.055 * (clamped ** (1 / 2.4)) - 0.055;
+    }
+
+    function hexToLinearRgb(hex) {
+      return hexToRgb(hex).map(srgbToLinear);
+    }
+
+    function linearRgbToHex(rgb) {
+      return rgbToHex(rgb.map(channel => linearToSrgb(channel) * 255));
+    }
+
+    function reflectanceToKS(reflectance) {
+      const safe = Math.max(0.0001, Math.min(0.9999, reflectance));
+      return ((1 - safe) ** 2) / (2 * safe);
+    }
+
+    function ksToReflectance(ks) {
+      return 1 + ks - Math.sqrt((ks * ks) + (2 * ks));
+    }
+
+    function hexToOklab(hex) {
+      const [r, g, b] = hexToLinearRgb(hex);
+      const l = 0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b;
+      const m = 0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b;
+      const s = 0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b;
+
+      const lRoot = Math.cbrt(l);
+      const mRoot = Math.cbrt(m);
+      const sRoot = Math.cbrt(s);
+
+      return [
+        0.2104542553 * lRoot + 0.7936177850 * mRoot - 0.0040720468 * sRoot,
+        1.9779984951 * lRoot - 2.4285922050 * mRoot + 0.4505937099 * sRoot,
+        0.0259040371 * lRoot + 0.7827717662 * mRoot - 0.8086757660 * sRoot,
+      ];
+    }
+
+    function oklabDistance(hexA, hexB) {
+      const [l1, a1, b1] = hexToOklab(hexA);
+      const [l2, a2, b2] = hexToOklab(hexB);
+      return Math.sqrt((l1 - l2) ** 2 + (a1 - a2) ** 2 + (b1 - b2) ** 2);
+    }
+
+    function buildPaintColor(pigments, pigmentMap) {
+      if (!pigments.length) return '#808080';
+      if (pigments.length === 1) return pigmentMap[pigments[0]]?.hex || '#808080';
+
+      const rgb = pigments
+        .map(code => pigmentMap[code]?.hex)
+        .filter(Boolean)
+        .map(hexToLinearRgb);
+
+      if (!rgb.length) return '#808080';
+
+      const average = [0, 1, 2].map(index => rgb.reduce((sum, item) => sum + item[index], 0) / rgb.length);
+      return linearRgbToHex(average);
+    }
+
+    function expandPaintLibrary() {
+      const pigmentMap = PAINT_DATA.pigments || {};
+      const paints = [];
+
+      (PAINT_DATA.brands || []).forEach(brand => {
+        brand.colors.forEach(color => {
+          const pigmentEntries = color.pigments
+            .map(code => ({ code, ...pigmentMap[code] }))
+            .filter(entry => entry.name);
+
+          const opacityScore = pigmentEntries.length
+            ? pigmentEntries.reduce((sum, pigment) => sum + (pigment.opacity ?? 0.6), 0) / pigmentEntries.length
+            : 0.6;
+
+          const tintStrength = pigmentEntries.length
+            ? pigmentEntries.reduce((sum, pigment) => sum + (pigment.tintStrength ?? 0.6), 0) / pigmentEntries.length
+            : 0.6;
+
+          paints.push({
+            id: color.id,
+            brandId: brand.id,
+            brandName: brand.name,
+            range: brand.range,
+            name: color.name,
+            pigments: color.pigments,
+            pigmentLabel: color.pigments.join(', '),
+            shade: color.shade,
+            opacityLabel: color.opacity,
+            color: color.hex || buildPaintColor(color.pigments, pigmentMap),
+            opacityScore,
+            tintStrength,
+          });
+        });
+      });
+
+      return paints;
+    }
+
+    const PAINT_LIBRARY = expandPaintLibrary();
+    const DEFAULT_PAINTS = PAINT_DATA.defaultPaintIds
+      .map(id => PAINT_LIBRARY.find(paint => paint.id === id))
+      .filter(Boolean);
+
+    function mixPaints(parts) {
+      const active = parts.filter(part => part.ratio > 0);
+      if (!active.length) return '#444444';
+
+      const total = active.reduce((sum, part) => sum + part.ratio, 0);
+      const mixedKS = [0, 0, 0];
+
+      active.forEach(part => {
+        const weight = part.ratio / total;
+        const pigmentInfluence = 0.65 + (part.tintStrength * 0.35);
+        const bodyInfluence = 0.75 + (part.opacityScore * 0.25);
+        const effectiveWeight = weight * pigmentInfluence * bodyInfluence;
+        const linear = hexToLinearRgb(part.color);
+
+        linear.forEach((channel, index) => {
+          mixedKS[index] += reflectanceToKS(channel) * effectiveWeight;
+        });
+      });
+
+      const reflectance = mixedKS.map(ksToReflectance);
+      return linearRgbToHex(reflectance);
+    }
+
+    function buildSuggestedMix(targetColor, paints) {
+      if (!targetColor || paints.length === 0) return null;
+
+      let best = null;
+
+      const registerCandidate = parts => {
+        const normalized = parts.filter(part => part.ratio > 0);
+        if (!normalized.length) return;
+        const mixed = mixPaints(normalized);
+        const distance = oklabDistance(targetColor, mixed);
+
+        if (!best || distance < best.distance) {
+          best = { parts: normalized, mixed, distance };
+        }
+      };
+
+      paints.forEach(paint => registerCandidate([{ ...paint, ratio: 100 }]));
+
+      for (let i = 0; i < paints.length; i += 1) {
+        for (let j = i + 1; j < paints.length; j += 1) {
+          for (let ratio = 10; ratio <= 90; ratio += 5) {
+            registerCandidate([
+              { ...paints[i], ratio: 100 - ratio },
+              { ...paints[j], ratio },
+            ]);
+          }
+        }
+      }
+
+      if (paints.length >= 3) {
+        for (let i = 0; i < paints.length; i += 1) {
+          for (let j = i + 1; j < paints.length; j += 1) {
+            for (let k = j + 1; k < paints.length; k += 1) {
+              for (let a = 20; a <= 60; a += 10) {
+                for (let b = 15; b <= 60 - a; b += 5) {
+                  const c = 100 - a - b;
+                  if (c <= 0) continue;
+                  registerCandidate([
+                    { ...paints[i], ratio: a },
+                    { ...paints[j], ratio: b },
+                    { ...paints[k], ratio: c },
+                  ]);
+                }
+              }
+            }
+          }
+        }
+      }
+
+      if (!best) return null;
+
+      return {
+        ...best,
+        proximity: Math.max(0, Math.min(100, Math.round((1 - (best.distance / 0.42)) * 100))),
+      };
+    }
+
+    function ColorSamplerOverlay({ image, currentColor, onClose, onConfirm }) {
+      const imgRef = useRef(null);
+      const canvasRef = useRef(null);
+      const [draftColor, setDraftColor] = useState(currentColor || '#ffffff');
+      const [marker, setMarker] = useState(null);
+
+      useEffect(() => {
+        setDraftColor(currentColor || '#ffffff');
+      }, [currentColor]);
+
+      const sampleColor = event => {
+        const rect = imgRef.current?.getBoundingClientRect();
+        const img = imgRef.current;
+        if (!rect || !img) return;
+
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
+        if (x < 0 || y < 0 || x > rect.width || y > rect.height) return;
+
+        const canvas = canvasRef.current || document.createElement('canvas');
+        canvasRef.current = canvas;
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+
+        const ctx = canvas.getContext('2d', { willReadFrequently: true });
+        if (!ctx) return;
+        ctx.drawImage(img, 0, 0, img.naturalWidth, img.naturalHeight);
+
+        const px = Math.max(0, Math.min(img.naturalWidth - 1, Math.round((x / rect.width) * img.naturalWidth)));
+        const py = Math.max(0, Math.min(img.naturalHeight - 1, Math.round((y / rect.height) * img.naturalHeight)));
+        const data = ctx.getImageData(px, py, 1, 1).data;
+        const nextColor = rgbToHex([data[0], data[1], data[2]]);
+
+        setDraftColor(nextColor);
+        setMarker({ xPct: (x / rect.width) * 100, yPct: (y / rect.height) * 100 });
+      };
 
       return (
-        <div className="screen" style={{ height: '100%', display: 'flex', flexDirection: 'column', gap: 10, padding: '12px 16px 0', overflowY: 'auto' }}>
-          <LG r={22} innerStyle={{ padding: 16 }}>
-            <div style={{ display: 'flex', gap: 14, alignItems: 'center' }}>
-              <div style={{
-                width: 76, height: 76, borderRadius: '50%', flexShrink: 0,
-                background: `radial-gradient(circle at 38% 32%, ${mixed}ff, ${mixed}99)`,
-                boxShadow: `0 0 40px ${mixed}88, 0 6px 20px rgba(0,0,0,.5), inset 0 2px 4px rgba(255,255,255,.35)`,
-                position: 'relative', overflow: 'hidden',
-              }}>
-                <div style={{ position: 'absolute', top: '8%', left: '10%', width: '50%', height: '42%', borderRadius: '60% 40% 50%', background: 'rgba(255,255,255,.3)', filter: 'blur(4px)' }} />
+        <div style={{ position: 'fixed', inset: 0, zIndex: 35, background: 'rgba(2,6,18,.88)', backdropFilter: 'blur(18px)', WebkitBackdropFilter: 'blur(18px)' }}>
+          <div style={{ position: 'absolute', top: 'calc(env(safe-area-inset-top, 0px) + 14px)', left: 14, right: 14, display: 'flex', justifyContent: 'space-between', zIndex: 3 }}>
+            <button onClick={onClose} style={{ width: 46, height: 46, borderRadius: '50%', border: '1px solid rgba(255,255,255,.22)', background: 'rgba(255,255,255,.08)', color: 'white', fontSize: 24, cursor: 'pointer' }}>←</button>
+            <LG r={18} innerStyle={{ padding: '10px 14px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <div style={{ width: 18, height: 18, borderRadius: '50%', background: draftColor, boxShadow: `0 0 20px ${draftColor}99` }} />
+                <span style={{ color: 'white', fontSize: 13, fontWeight: 700 }}>{draftColor.toUpperCase()}</span>
               </div>
-              <div style={{ flex: 1 }}>
-                <div style={{ color: 'rgba(255,255,255,.45)', fontSize: 11, fontWeight: 600, letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 4 }}>Mélange</div>
-                <div style={{ color: 'white', fontSize: 20, fontWeight: 800, fontFamily: 'monospace', letterSpacing: 1 }}>{mixed.toUpperCase()}</div>
-                <div style={{ color: 'rgba(255,255,255,.4)', fontSize: 12, marginTop: 4 }}>
-                  {total > 0 ? `${total} parts · ${pigs.filter(p => p.pct > 0).length} pigments` : 'Aucun pigment sélectionné'}
-                </div>
-              </div>
-            </div>
-            {total > 0 && (
-              <div style={{ marginTop: 14, display: 'flex', gap: 2, height: 5, borderRadius: 3, overflow: 'hidden' }}>
-                {pigs.filter(p => p.pct > 0).map(p => (
-                  <div key={p.code} style={{ flex: p.pct, background: p.color, transition: 'flex .3s' }} />
-                ))}
-              </div>
-            )}
-          </LG>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
-            {pigs.map(p => (
-              <LG key={p.code} r={18} style={{ cursor: 'pointer' }}>
-                <div style={{ padding: '11px 13px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 11 }} onClick={() => setSel(sel === p.code ? null : p.code)}>
-                    <PaintBlob color={p.color} size={40} active={p.pct > 0} />
-                    <div style={{ flex: 1 }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                        <span style={{ color: 'white', fontSize: 14, fontWeight: 600 }}>{p.name}</span>
-                        <span style={{ color: 'rgba(255,255,255,.85)', fontSize: 13, fontWeight: 700 }}>
-                          {p.pct > 0 ? `${Math.round((p.pct / Math.max(total, 1)) * 100)}%` : '—'}
-                        </span>
-                      </div>
-                      <span style={{ color: 'rgba(255,255,255,.35)', fontSize: 11, fontFamily: 'monospace' }}>{p.code}</span>
-                    </div>
-                  </div>
-                  {sel === p.code && (
-                    <div style={{ marginTop: 12, display: 'flex', alignItems: 'center', gap: 10 }}>
-                      <button onClick={() => set(p.code, p.pct - 5)} style={{ width: 32, height: 32, borderRadius: '50%', background: 'rgba(255,255,255,.1)', border: '1px solid rgba(255,255,255,.2)', color: 'white', fontSize: 18, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>−</button>
-                      <div style={{ flex: 1, paddingTop: 4 }}><GlassSlider value={p.pct} onChange={v => set(p.code, v)} accent={p.color} /></div>
-                      <button onClick={() => set(p.code, p.pct + 5)} style={{ width: 32, height: 32, borderRadius: '50%', background: 'rgba(255,255,255,.1)', border: '1px solid rgba(255,255,255,.2)', color: 'white', fontSize: 18, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>+</button>
-                    </div>
-                  )}
-                </div>
-              </LG>
-            ))}
+            </LG>
           </div>
-          <div style={{ height: 16 }} />
+
+          <div style={{ position: 'absolute', inset: 'calc(env(safe-area-inset-top, 0px) + 74px) 18px 116px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div
+              style={{ position: 'relative', width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              onClick={sampleColor}
+            >
+              <img
+                ref={imgRef}
+                src={image}
+                alt="calque pour pipette"
+                style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', borderRadius: 28, boxShadow: '0 24px 80px rgba(0,0,0,.34)' }}
+              />
+              {marker && (
+                <div
+                  style={{
+                    position: 'absolute',
+                    left: `${marker.xPct}%`,
+                    top: `${marker.yPct}%`,
+                    transform: 'translate(-50%, -50%)',
+                    width: 34,
+                    height: 34,
+                    borderRadius: '50%',
+                    border: '2px solid rgba(255,255,255,.9)',
+                    boxShadow: `0 0 0 5px ${draftColor}55, 0 6px 20px rgba(0,0,0,.35)`,
+                    background: 'rgba(255,255,255,.08)',
+                    pointerEvents: 'none',
+                  }}
+                >
+                  <div style={{ position: 'absolute', inset: 8, borderRadius: '50%', background: draftColor }} />
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div style={{ position: 'absolute', left: 18, right: 18, bottom: 'calc(env(safe-area-inset-bottom, 0px) + 16px)', zIndex: 3 }}>
+            <ActionButton
+              label="Choisir cette couleur"
+              sublabel="Valider la couleur sous la pipette et revenir au melange."
+              onClick={() => onConfirm(draftColor)}
+            />
+          </div>
         </div>
       );
     }
 
-    /* ── Tab: Bibliothèque ── */
+    function TabCouleurs({ overlayImage }) {
+      const [targetColor, setTargetColor] = useState(null);
+      const [showSources, setShowSources] = useState(false);
+      const [showSampler, setShowSampler] = useState(false);
+      const [myPaints, setMyPaints] = useState(() => DEFAULT_PAINTS);
+      const [selectedBrandId, setSelectedBrandId] = useState(() => (PAINT_DATA.brands[0]?.id || ''));
+      const [selectedPaintId, setSelectedPaintId] = useState('');
+      const colorInputRef = useRef(null);
+
+      const suggestion = buildSuggestedMix(targetColor, myPaints);
+      const availableByBrand = PAINT_LIBRARY.filter(
+        paint => paint.brandId === selectedBrandId && !myPaints.some(item => item.id === paint.id)
+      );
+
+      useEffect(() => {
+        if (!availableByBrand.length) {
+          setSelectedPaintId('');
+          return;
+        }
+        if (!availableByBrand.some(paint => paint.id === selectedPaintId)) {
+          setSelectedPaintId(availableByBrand[0].id);
+        }
+      }, [availableByBrand, selectedPaintId]);
+
+      const addPaint = () => {
+        const paint = PAINT_LIBRARY.find(item => item.id === selectedPaintId);
+        if (!paint || myPaints.some(item => item.id === paint.id)) return;
+        setMyPaints(prev => [...prev, paint]);
+      };
+
+      const removePaint = paintId => {
+        setMyPaints(prev => prev.filter(paint => paint.id !== paintId));
+      };
+
+      return (
+        <>
+          <div className="screen" style={{ height: '100%', display: 'flex', flexDirection: 'column', gap: 10, padding: '12px 16px 0', overflowY: 'auto' }}>
+            <LG r={24} innerStyle={{ padding: '18px 16px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+                  <div>
+                  <div style={{ color: 'rgba(244,249,255,.86)', textShadow: '0 1px 8px rgba(6,18,56,.28)', fontSize: 11, fontWeight: 700, letterSpacing: 2.2, textTransform: 'uppercase' }}>Couleur cible</div>
+                    <div style={{ color: 'white', fontSize: 24, fontWeight: 800, letterSpacing: -.8 }}>Definir une couleur</div>
+                  </div>
+                  <LG r={16} innerStyle={{ padding: '8px 12px' }}>
+                    <span style={{ color: targetColor ? 'white' : 'rgba(255,255,255,.58)', fontSize: 12, fontWeight: 700 }}>
+                      {targetColor ? targetColor.toUpperCase() : 'Aucune'}
+                    </span>
+                  </LG>
+                </div>
+
+                <ActionButton
+                  label="Definir une couleur"
+                  sublabel="Choisis une couleur depuis ton calque ou directement depuis une palette."
+                  onClick={() => setShowSources(value => !value)}
+                />
+
+                {showSources && (
+                  <div style={{ display: 'grid', gap: 8 }}>
+                    <ActionButton
+                      label="Depuis le calque"
+                      sublabel={overlayImage ? "Ouvre le calque en plein ecran pour y placer la pipette." : "Ajoute d'abord un calque dans l'onglet Calque pour utiliser la pipette."}
+                      onClick={() => overlayImage && setShowSampler(true)}
+                    />
+                    <ActionButton
+                      label="Depuis la palette"
+                      sublabel="Utilise le selecteur de couleur classique pour definir la teinte cible."
+                      onClick={() => colorInputRef.current?.click()}
+                    />
+                  </div>
+                )}
+
+                {targetColor && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                    <div
+                      style={{
+                        width: 74,
+                        height: 74,
+                        borderRadius: '24px',
+                        background: `radial-gradient(circle at 35% 28%, ${targetColor}, ${targetColor}cc 58%, rgba(255,255,255,.25) 140%)`,
+                        boxShadow: `0 18px 50px ${targetColor}66, inset 0 1px 0 rgba(255,255,255,.45)`,
+                        flexShrink: 0,
+                      }}
+                    />
+                    <div>
+                      <div style={{ color: 'rgba(244,249,255,.82)', textShadow: '0 1px 8px rgba(6,18,56,.24)', fontSize: 11, fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase' }}>Selectionnee</div>
+                      <div style={{ color: 'white', fontSize: 20, fontWeight: 800, fontFamily: 'monospace', letterSpacing: .8, marginTop: 4 }}>{targetColor.toUpperCase()}</div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </LG>
+
+            {targetColor && suggestion && (
+              <LG r={24} innerStyle={{ padding: '18px 16px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+                    <div>
+                      <div style={{ color: 'rgba(244,249,255,.86)', textShadow: '0 1px 8px rgba(6,18,56,.28)', fontSize: 11, fontWeight: 700, letterSpacing: 2.2, textTransform: 'uppercase' }}>Melange suggere</div>
+                      <div style={{ color: 'white', fontSize: 23, fontWeight: 800, letterSpacing: -.8 }}>Recette conseillee</div>
+                    </div>
+                    <LG r={16} innerStyle={{ padding: '8px 12px' }}>
+                      <span style={{ color: 'white', fontSize: 12, fontWeight: 700 }}>{suggestion.proximity}% proche</span>
+                    </LG>
+                  </div>
+
+                  <div style={{ display: 'flex', gap: 14, alignItems: 'center' }}>
+                    <div style={{ width: 54, height: 54, borderRadius: '18px', background: targetColor, boxShadow: `0 10px 24px ${targetColor}66` }} />
+                    <div style={{ width: 54, height: 54, borderRadius: '18px', background: suggestion.mixed, boxShadow: `0 10px 24px ${suggestion.mixed}66` }} />
+                    <div>
+                      <div style={{ color: 'rgba(255,255,255,.56)', fontSize: 11 }}>Couleur trouvee</div>
+                      <div style={{ color: 'white', fontSize: 15, fontWeight: 700, fontFamily: 'monospace' }}>{suggestion.mixed.toUpperCase()}</div>
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    {suggestion.parts.map(part => (
+                      <LG key={part.id} r={18}>
+                        <div style={{ padding: '12px 14px', display: 'flex', alignItems: 'center', gap: 12 }}>
+                          <div style={{ width: 34, height: 34, borderRadius: '50%', background: part.color, boxShadow: `0 0 18px ${part.color}88` }} />
+                          <div style={{ flex: 1 }}>
+                            <div style={{ color: 'white', fontSize: 14, fontWeight: 700 }}>{part.name}</div>
+                            <div style={{ color: 'rgba(255,255,255,.42)', fontSize: 11 }}>{part.brandName} · {part.pigmentLabel}</div>
+                          </div>
+                          <div style={{ color: 'white', fontSize: 18, fontWeight: 800 }}>{part.ratio}%</div>
+                        </div>
+                      </LG>
+                    ))}
+                  </div>
+                </div>
+              </LG>
+            )}
+
+            <LG r={24} innerStyle={{ padding: '18px 16px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                <div>
+                  <div style={{ color: 'rgba(244,249,255,.86)', textShadow: '0 1px 8px rgba(6,18,56,.28)', fontSize: 11, fontWeight: 700, letterSpacing: 2.2, textTransform: 'uppercase' }}>Mes peintures</div>
+                  <div style={{ color: 'white', fontSize: 23, fontWeight: 800, letterSpacing: -.8 }}>Pots disponibles</div>
+                </div>
+
+                {!myPaints.length && (
+                  <LG r={18}>
+                    <div style={{ padding: '16px 14px', display: 'flex', flexDirection: 'column', gap: 5 }}>
+                      <div style={{ color: 'white', fontSize: 14, fontWeight: 700 }}>Aucun pot pour le moment</div>
+                      <div style={{ color: 'rgba(255,255,255,.58)', fontSize: 12, lineHeight: 1.5 }}>
+                        Ajoute uniquement les peintures que tu as vraiment pour obtenir des suggestions de melange utiles.
+                      </div>
+                    </div>
+                  </LG>
+                )}
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {myPaints.map(paint => (
+                    <LG key={paint.id} r={18}>
+                      <div style={{ padding: '12px 14px', display: 'flex', alignItems: 'center', gap: 12 }}>
+                        <div style={{ width: 36, height: 36, borderRadius: '50%', background: paint.color, boxShadow: `0 0 18px ${paint.color}88` }} />
+                        <div style={{ flex: 1 }}>
+                          <div style={{ color: 'white', fontSize: 14, fontWeight: 700 }}>{paint.name}</div>
+                          <div style={{ color: 'rgba(255,255,255,.42)', fontSize: 11 }}>{paint.brandName} · {paint.pigmentLabel} · {paint.shade}</div>
+                        </div>
+                        <button onClick={() => removePaint(paint.id)} style={{ width: 30, height: 30, borderRadius: '50%', border: '1px solid rgba(255,255,255,.16)', background: 'rgba(255,255,255,.08)', color: 'white', cursor: 'pointer', fontSize: 16 }}>−</button>
+                      </div>
+                    </LG>
+                  ))}
+                </div>
+
+                <LG r={20} innerStyle={{ padding: '14px' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                    <div style={{ color: 'white', fontSize: 15, fontWeight: 700 }}>Ajouter une peinture</div>
+                    <div style={{ display: 'grid', gap: 8 }}>
+                      <select
+                        value={selectedBrandId}
+                        onChange={e => setSelectedBrandId(e.target.value)}
+                        style={{
+                          width: '100%',
+                          borderRadius: 14,
+                          border: '1px solid rgba(255,255,255,.16)',
+                          background: 'rgba(255,255,255,.08)',
+                          color: 'white',
+                          padding: '12px 14px',
+                          outline: 'none',
+                        }}
+                      >
+                        {PAINT_DATA.brands.map(brand => (
+                          <option key={brand.id} value={brand.id} style={{ color: '#091020' }}>
+                            {brand.name} · {brand.range}
+                          </option>
+                        ))}
+                      </select>
+                      <div style={{ display: 'flex', gap: 8 }}>
+                      <select
+                        value={selectedPaintId}
+                        onChange={e => setSelectedPaintId(e.target.value)}
+                        style={{
+                          flex: 1,
+                          borderRadius: 14,
+                          border: '1px solid rgba(255,255,255,.16)',
+                          background: 'rgba(255,255,255,.08)',
+                          color: 'white',
+                          padding: '12px 14px',
+                          outline: 'none',
+                        }}
+                      >
+                        {availableByBrand.length === 0 && <option>Toutes les peintures de cette marque sont deja ajoutees</option>}
+                        {availableByBrand.map(paint => (
+                          <option key={paint.id} value={paint.id} style={{ color: '#091020' }}>
+                            {paint.name} · {paint.pigmentLabel} · {paint.shade}
+                          </option>
+                        ))}
+                      </select>
+                      <button
+                        onClick={addPaint}
+                        disabled={availableByBrand.length === 0}
+                        style={{
+                          minWidth: 88,
+                          borderRadius: 14,
+                          border: '1px solid rgba(255,255,255,.18)',
+                          background: availableByBrand.length === 0 ? 'rgba(255,255,255,.08)' : 'linear-gradient(135deg,rgba(180,220,255,.26),rgba(90,135,255,.22))',
+                          color: 'white',
+                          fontWeight: 700,
+                          cursor: availableByBrand.length === 0 ? 'default' : 'pointer',
+                        }}
+                      >
+                        Ajouter
+                      </button>
+                      </div>
+                    </div>
+                  </div>
+                </LG>
+              </div>
+            </LG>
+
+            <input
+              ref={colorInputRef}
+              type="color"
+              style={{ display: 'none' }}
+              onChange={e => setTargetColor(e.target.value)}
+              value={targetColor || '#7e8df0'}
+            />
+            <div style={{ height: 16 }} />
+          </div>
+
+          {showSampler && overlayImage && (
+            <ColorSamplerOverlay
+              image={overlayImage}
+              currentColor={targetColor}
+              onClose={() => setShowSampler(false)}
+              onConfirm={color => {
+                setTargetColor(color);
+                setShowSampler(false);
+                setShowSources(false);
+              }}
+            />
+          )}
+        </>
+      );
+    }
+
     const REFS = [
-      { id: 1, title: 'Nuit étoilée',     artist: 'Van Gogh',  tags: ['bleu','nuit','ciel'],     palette: ['#1a237e','#283593','#ffd54f','#fff9c4','#4a148c'] },
-      { id: 2, title: 'La Joconde',        artist: 'Da Vinci',  tags: ['portrait','sfumato'],     palette: ['#4e342e','#6d4c41','#8d6e63','#d7ccc8','#795548'] },
-      { id: 3, title: 'Impression Soleil', artist: 'Monet',     tags: ['impressionnisme','orange'],palette: ['#bf360c','#e64a19','#ff7043','#4fc3f7','#b0bec5'] },
-      { id: 4, title: 'Guernica',          artist: 'Picasso',   tags: ['cubisme','noir'],         palette: ['#212121','#424242','#757575','#bdbdbd','#eeeeee'] },
-      { id: 5, title: 'Les Tournesols',    artist: 'Van Gogh',  tags: ['jaune','fleurs'],         palette: ['#f57f17','#f9a825','#fdd835','#fff176','#795548'] },
-      { id: 6, title: 'La Persistance',    artist: 'Dali',      tags: ['surréalisme','désert'],   palette: ['#e65100','#ef6c00','#f57c00','#1565c0','#0d47a1'] },
+      {
+        id: 1,
+        title: 'Les Tournesols',
+        artist: 'Vincent van Gogh',
+        difficulty: 'debutant',
+        source: 'The Metropolitan Museum of Art',
+        rights: 'Public Domain',
+        sourceUrl: 'https://www.metmuseum.org/art/collection',
+        tags: ['jaune', 'fleurs', 'formes simples'],
+        palette: ['#f2a900', '#f6c338', '#ffd95e', '#8a5a31', '#d07c17'],
+        imageUrl: 'https://commons.wikimedia.org/wiki/Special:FilePath/Van_Gogh,_Sunflowers,_1887.jpg',
+      },
+      {
+        id: 2,
+        title: 'La Chambre a Arles',
+        artist: 'Vincent van Gogh',
+        difficulty: 'debutant',
+        source: 'Musee d Orsay / Wikimedia Commons',
+        rights: 'Public Domain',
+        sourceUrl: 'https://commons.wikimedia.org/wiki/Main_Page',
+        tags: ['interieur', 'aplats', 'perspective simple'],
+        palette: ['#4b89d0', '#e8bb3a', '#d55c3c', '#7aa85a', '#d8c4a1'],
+        imageUrl: 'https://commons.wikimedia.org/wiki/Special:FilePath/Vincent_van_Gogh_-_The_Bedroom_-_Google_Art_Project.jpg',
+      },
+      {
+        id: 3,
+        title: 'Bridge over a Pond of Water Lilies',
+        artist: 'Claude Monet',
+        difficulty: 'debutant',
+        source: 'The Metropolitan Museum of Art',
+        rights: 'CC0 Public Domain',
+        sourceUrl: 'https://www.metmuseum.org/art/collection/search/437127',
+        tags: ['vert', 'eau', 'pont', 'paysage'],
+        palette: ['#5a7d57', '#7fa06c', '#b6c58d', '#8aa7c7', '#d7d9c3'],
+        imageUrl: 'https://commons.wikimedia.org/wiki/Special:FilePath/Bridge_over_a_Pond_of_Water_Lilies_MET_DT1854.jpg',
+      },
+      {
+        id: 4,
+        title: 'Impression, soleil levant',
+        artist: 'Claude Monet',
+        difficulty: 'intermediaire',
+        source: 'Musee Marmottan / Wikimedia Commons',
+        rights: 'Public Domain',
+        sourceUrl: 'https://commons.wikimedia.org/wiki/Main_Page',
+        tags: ['brume', 'orange', 'atmosphere'],
+        palette: ['#4f6f8d', '#7e97a7', '#d86a2a', '#a8b9be', '#5b3c2a'],
+        imageUrl: 'https://commons.wikimedia.org/wiki/Special:FilePath/Monet_-_Impression,_Sunrise.jpg',
+      },
+      {
+        id: 5,
+        title: 'Wheat Field with Cypresses',
+        artist: 'Vincent van Gogh',
+        difficulty: 'intermediaire',
+        source: 'The Metropolitan Museum of Art',
+        rights: 'Public Domain',
+        sourceUrl: 'https://www.metmuseum.org/art/collection/search/436535',
+        tags: ['bleu', 'jaune', 'mouvement'],
+        palette: ['#3556c6', '#5b8bd4', '#e2b92d', '#7da049', '#f0e4a2'],
+        imageUrl: 'https://images.metmuseum.org/CRDImages/ep/web-large/DP-42549-001.jpg',
+      },
+      {
+        id: 6,
+        title: 'Irises',
+        artist: 'Vincent van Gogh',
+        difficulty: 'intermediaire',
+        source: 'The Metropolitan Museum of Art',
+        rights: 'CC0 Public Domain',
+        sourceUrl: 'https://www.metmuseum.org/art/collection/search/436528',
+        tags: ['fleurs', 'bleu', 'touches'],
+        palette: ['#4858c8', '#7891d6', '#84a86d', '#f4f0dc', '#8b684f'],
+        imageUrl: 'https://commons.wikimedia.org/wiki/Special:FilePath/Irises_MET_DP346474.jpg',
+      },
+      {
+        id: 7,
+        title: 'La Grande Vague',
+        artist: 'Hokusai',
+        difficulty: 'intermediaire',
+        source: 'The Art Institute of Chicago',
+        rights: 'CC0 Public Domain',
+        sourceUrl: 'https://www.artic.edu/open-access',
+        tags: ['vague', 'bleu', 'contraste'],
+        palette: ['#24478d', '#4068b0', '#8db3d8', '#f5efe0', '#c2d8e9'],
+        imageUrl: 'https://commons.wikimedia.org/wiki/Special:FilePath/Katsushika_Hokusai_-_Thirty-Six_Views_of_Mount_Fuji-_The_Great_Wave_Off_the_Coast_of_Kanagawa_-_Google_Art_Project.jpg',
+      },
+      {
+        id: 8,
+        title: 'Jeune fille a la perle',
+        artist: 'Johannes Vermeer',
+        difficulty: 'intermediaire',
+        source: 'Mauritshuis / Wikimedia Commons',
+        rights: 'Public Domain',
+        sourceUrl: 'https://commons.wikimedia.org/wiki/Main_Page',
+        tags: ['portrait', 'clair obscur', 'turban'],
+        palette: ['#1a2c58', '#d7b954', '#a26a43', '#f1d9b2', '#111116'],
+        imageUrl: 'https://commons.wikimedia.org/wiki/Special:FilePath/Girl_with_a_Pearl_Earring.jpg',
+      },
+      {
+        id: 9,
+        title: 'Water Lilies',
+        artist: 'Claude Monet',
+        difficulty: 'avance',
+        source: 'The Art Institute of Chicago',
+        rights: 'CC0 Public Domain',
+        sourceUrl: 'https://www.artic.edu/open-access',
+        tags: ['eau', 'nuances', 'touches'],
+        palette: ['#7797b5', '#99b6c7', '#c7c2d2', '#5a7e68', '#d7d9cf'],
+        imageUrl: 'https://commons.wikimedia.org/wiki/Special:FilePath/Claude_Monet_-_Water_Lilies_-_Google_Art_Project.jpg',
+      },
+      {
+        id: 10,
+        title: 'The Cradle',
+        artist: 'Berthe Morisot',
+        difficulty: 'debutant',
+        source: 'Wikimedia Commons',
+        rights: 'Public Domain',
+        sourceUrl: 'https://commons.wikimedia.org/wiki/File:Berthe_Morisot_-_The_Cradle_-_Google_Art_Project.jpg',
+        tags: ['portrait', 'interieur', 'tons doux'],
+        palette: ['#d9d5df', '#f2ece7', '#8d8a9f', '#b8b2aa', '#5f687f'],
+        imageUrl: 'https://commons.wikimedia.org/wiki/Special:FilePath/Berthe_Morisot_-_The_Cradle_-_Google_Art_Project.jpg',
+      },
+      {
+        id: 11,
+        title: 'Sunlight on the Road, Pontoise',
+        artist: 'Camille Pissarro',
+        difficulty: 'debutant',
+        source: 'Wikimedia Commons',
+        rights: 'Public Domain',
+        sourceUrl: 'https://commons.wikimedia.org/wiki/File:Camille_Pissarro_-_Sunlight_on_the_Road,_Pontoise_-_Google_Art_Project.jpg',
+        tags: ['paysage', 'route', 'lumiere'],
+        palette: ['#d3c38f', '#95a66f', '#7890a7', '#b27f58', '#dfe4e1'],
+        imageUrl: 'https://commons.wikimedia.org/wiki/Special:FilePath/Camille_Pissarro_-_Sunlight_on_the_Road,_Pontoise_-_Google_Art_Project.jpg',
+      },
+      {
+        id: 12,
+        title: 'Young Woman in the Woods',
+        artist: 'Camille Corot',
+        difficulty: 'intermediaire',
+        source: 'Wikimedia Commons',
+        rights: 'Public Domain',
+        sourceUrl: 'https://commons.wikimedia.org/wiki/File:Camille_Corot_-_Young_Woman_in_the_Woods_-_Google_Art_Project.jpg',
+        tags: ['figure', 'foret', 'valeurs'],
+        palette: ['#5d6548', '#8f8a6c', '#cfc8b2', '#4a5240', '#a3a691'],
+        imageUrl: 'https://commons.wikimedia.org/wiki/Special:FilePath/Camille_Corot_-_Young_Woman_in_the_Woods_-_Google_Art_Project.jpg',
+      },
+      {
+        id: 13,
+        title: 'Forest of Fontainebleau',
+        artist: 'Camille Corot',
+        difficulty: 'intermediaire',
+        source: 'Wikimedia Commons',
+        rights: 'Public Domain',
+        sourceUrl: 'https://commons.wikimedia.org/wiki/File:Jean-Baptiste-Camille_Corot_-_Forest_of_Fontainebleau_-_Google_Art_Project.jpg',
+        tags: ['foret', 'arbres', 'verts sourds'],
+        palette: ['#5b684d', '#81906e', '#b0ab8e', '#4d5648', '#d0c9aa'],
+        imageUrl: 'https://commons.wikimedia.org/wiki/Special:FilePath/Jean-Baptiste-Camille_Corot_-_Forest_of_Fontainebleau_-_Google_Art_Project.jpg',
+      },
+      {
+        id: 14,
+        title: 'The Toutain Farm at Honfleur',
+        artist: 'Camille Corot',
+        difficulty: 'intermediaire',
+        source: 'Wikimedia Commons',
+        rights: 'Public Domain',
+        sourceUrl: 'https://commons.wikimedia.org/wiki/File:Camille_Corot_-_The_Toutain_Farm_at_Honfleur_-_Google_Art_Project.jpg',
+        tags: ['ferme', 'ciel', 'gris colorés'],
+        palette: ['#8c9daf', '#718c73', '#b89b72', '#d6d4cc', '#5d6772'],
+        imageUrl: 'https://commons.wikimedia.org/wiki/Special:FilePath/Camille_Corot_-_The_Toutain_Farm_at_Honfleur_-_Google_Art_Project.jpg',
+      },
+      {
+        id: 15,
+        title: 'The Pont-Neuf, Sunlight',
+        artist: 'Camille Pissarro',
+        difficulty: 'intermediaire',
+        source: 'Wikimedia Commons',
+        rights: 'Public Domain',
+        sourceUrl: 'https://commons.wikimedia.org/wiki/File:Camille_Pissarro_-_The_Pont-Neuf_-_Google_Art_Project.jpg',
+        tags: ['ville', 'pont', 'architecture'],
+        palette: ['#9ba9bb', '#c6c2b5', '#7e8b9d', '#d8d6cf', '#6f6259'],
+        imageUrl: 'https://commons.wikimedia.org/wiki/Special:FilePath/Camille_Pissarro_-_The_Pont-Neuf_-_Google_Art_Project.jpg',
+      },
+      {
+        id: 16,
+        title: 'Paysage a Osny',
+        artist: 'Camille Pissarro',
+        difficulty: 'intermediaire',
+        source: 'Wikimedia Commons',
+        rights: 'Public Domain',
+        sourceUrl: 'https://commons.wikimedia.org/wiki/File:Camille_Pissarro_-_Paysage_a_Osny_-_Google_Art_Project.jpg',
+        tags: ['champ', 'paysage', 'tons naturels'],
+        palette: ['#b0a36d', '#849773', '#8da5bf', '#d4d0bb', '#685844'],
+        imageUrl: 'https://commons.wikimedia.org/wiki/Special:FilePath/Camille_Pissarro_-_Paysage_a_Osny_-_Google_Art_Project.jpg',
+      },
+      {
+        id: 17,
+        title: 'Still Life',
+        artist: 'Camille Pissarro',
+        difficulty: 'avance',
+        source: 'Wikimedia Commons',
+        rights: 'Public Domain',
+        sourceUrl: 'https://commons.wikimedia.org/wiki/File:Camille_Pissarro_-_Still_Life_-_Google_Art_Project.jpg',
+        tags: ['nature morte', 'objets', 'couleurs sourdes'],
+        palette: ['#906c4b', '#c6b18a', '#7c848c', '#4c4a42', '#d9d1bf'],
+        imageUrl: 'https://commons.wikimedia.org/wiki/Special:FilePath/Camille_Pissarro_-_Still_Life_-_Google_Art_Project.jpg',
+      },
+      {
+        id: 18,
+        title: 'The Factory at Pontoise',
+        artist: 'Camille Pissarro',
+        difficulty: 'avance',
+        source: 'Wikimedia Commons',
+        rights: 'Public Domain',
+        sourceUrl: 'https://commons.wikimedia.org/wiki/File:Camille_Pissarro_-_The_Factory_at_Pontoise_-_Google_Art_Project.jpg',
+        tags: ['usine', 'ciel', 'fumee'],
+        palette: ['#8f9bb0', '#c4b796', '#6e7a6c', '#d8d8d3', '#72645a'],
+        imageUrl: 'https://commons.wikimedia.org/wiki/Special:FilePath/Camille_Pissarro_-_The_Factory_at_Pontoise_-_Google_Art_Project.jpg',
+      },
+      {
+        id: 19,
+        title: 'The Concord Meadow',
+        artist: 'Childe Hassam',
+        difficulty: 'intermediaire',
+        source: 'Wikimedia Commons',
+        rights: 'Public Domain',
+        sourceUrl: 'https://commons.wikimedia.org/wiki/File:Childe_Hassam_-_The_Concord_Meadow_-_Google_Art_Project.jpg',
+        tags: ['meadow', 'nature', 'bleus et verts'],
+        palette: ['#7ea4cb', '#89a876', '#d1ccad', '#58739e', '#5f6947'],
+        imageUrl: 'https://commons.wikimedia.org/wiki/Special:FilePath/Childe_Hassam_-_The_Concord_Meadow_-_Google_Art_Project.jpg',
+      },
+      {
+        id: 20,
+        title: 'Woodchopper',
+        artist: 'Childe Hassam',
+        difficulty: 'avance',
+        source: 'Wikimedia Commons',
+        rights: 'Public Domain',
+        sourceUrl: 'https://commons.wikimedia.org/wiki/File:Childe_Hassam_-_Woodchopper_-_Google_Art_Project.jpg',
+        tags: ['figure', 'neige', 'paysage'],
+        palette: ['#dfe5ee', '#8ba3c3', '#6e7d8d', '#8f7453', '#f5f6f8'],
+        imageUrl: 'https://commons.wikimedia.org/wiki/Special:FilePath/Childe_Hassam_-_Woodchopper_-_Google_Art_Project.jpg',
+      },
+      {
+        id: 21,
+        title: 'Improvisation',
+        artist: 'Childe Hassam',
+        difficulty: 'avance',
+        source: 'Wikimedia Commons',
+        rights: 'Public Domain',
+        sourceUrl: 'https://commons.wikimedia.org/wiki/File:Childe_Hassam_-_Improvisation_-_Google_Art_Project.jpg',
+        tags: ['fleurs', 'decoratif', 'touches'],
+        palette: ['#d8d0b7', '#9e8f7e', '#7b8cab', '#5e604f', '#e6e3d9'],
+        imageUrl: 'https://commons.wikimedia.org/wiki/Special:FilePath/Childe_Hassam_-_Improvisation_-_Google_Art_Project.jpg',
+      },
+      {
+        id: 22,
+        title: 'Reading',
+        artist: 'Berthe Morisot',
+        difficulty: 'debutant',
+        source: 'Wikimedia Commons',
+        rights: 'Public Domain',
+        sourceUrl: 'https://commons.wikimedia.org/wiki/File:Berthe_Morisot_-_Reading_-_Google_Art_Project.jpg',
+        tags: ['lecture', 'tons clairs', 'interieur'],
+        palette: ['#dfd3c4', '#f3ece5', '#a8a1aa', '#76707f', '#c9b79d'],
+        imageUrl: 'https://commons.wikimedia.org/wiki/Special:FilePath/Berthe_Morisot_-_Reading_-_Google_Art_Project.jpg',
+      },
+      {
+        id: 23,
+        title: 'Lilacs at Maurecourt',
+        artist: 'Berthe Morisot',
+        difficulty: 'debutant',
+        source: 'Wikimedia Commons',
+        rights: 'Public Domain',
+        sourceUrl: 'https://commons.wikimedia.org/wiki/File:Berthe_Morisot_-_Lilacs_at_Maurecourt_-_Google_Art_Project.jpg',
+        tags: ['fleurs', 'air libre', 'violets doux'],
+        palette: ['#c7b8d6', '#d9ded4', '#839a78', '#ece5ef', '#8f7c8e'],
+        imageUrl: 'https://commons.wikimedia.org/wiki/Special:FilePath/Berthe_Morisot_-_Lilacs_at_Maurecourt_-_Google_Art_Project.jpg',
+      },
+      {
+        id: 24,
+        title: 'On the Terrace at Sevres',
+        artist: 'Marie Bracquemond',
+        difficulty: 'intermediaire',
+        source: 'Wikimedia Commons',
+        rights: 'Public Domain',
+        sourceUrl: 'https://commons.wikimedia.org/wiki/File:Marie_Bracquemond_-_On_the_Terrace_at_Sevres.jpg',
+        tags: ['terrasse', 'robes', 'lumiere'],
+        palette: ['#e2d4bd', '#8ba0b4', '#728b66', '#f6efe7', '#ae8f6d'],
+        imageUrl: 'https://commons.wikimedia.org/wiki/Special:FilePath/Marie_Bracquemond_-_On_the_Terrace_at_Sevres.jpg',
+      },
+      {
+        id: 25,
+        title: 'The Artist Son and Sister in the Garden at Eragny',
+        artist: 'Camille Pissarro',
+        difficulty: 'debutant',
+        source: 'Wikimedia Commons',
+        rights: 'Public Domain',
+        sourceUrl: 'https://commons.wikimedia.org/wiki/File:Camille_Pissarro_-_The_Artist%27s_Son_and_Sister_in_the_Garden_at_Eragny.jpg',
+        tags: ['jardin', 'famille', 'verts lumineux'],
+        palette: ['#9db070', '#d8d1ba', '#8ca7c8', '#5d6c4b', '#b98765'],
+        imageUrl: 'https://commons.wikimedia.org/wiki/Special:FilePath/Camille_Pissarro_-_The_Artist%27s_Son_and_Sister_in_the_Garden_at_Eragny.jpg',
+      },
+      {
+        id: 26,
+        title: 'Haystacks, Eragny',
+        artist: 'Camille Pissarro',
+        difficulty: 'intermediaire',
+        source: 'Wikimedia Commons',
+        rights: 'Public Domain',
+        sourceUrl: 'https://commons.wikimedia.org/wiki/File:Camille_Pissarro_-_Haystacks,_Eragny.jpg',
+        tags: ['meules', 'campagne', 'ocre'],
+        palette: ['#c3a35e', '#89a3c0', '#70845c', '#e5dcc5', '#8f6a47'],
+        imageUrl: 'https://commons.wikimedia.org/wiki/Special:FilePath/Camille_Pissarro_-_Haystacks,_Eragny.jpg',
+      },
+      {
+        id: 27,
+        title: 'The Childs Bath',
+        artist: 'Mary Cassatt',
+        difficulty: 'intermediaire',
+        source: 'Wikimedia Commons',
+        rights: 'Public Domain',
+        sourceUrl: 'https://commons.wikimedia.org/wiki/File:Mary_Cassatt_-_The_Child%27s_Bath.jpg',
+        tags: ['figure', 'motifs', 'rose et bleu'],
+        palette: ['#d8c0ba', '#93a8bb', '#f0e2cf', '#7c8470', '#b9927f'],
+        imageUrl: 'https://commons.wikimedia.org/wiki/Special:FilePath/Mary_Cassatt_-_The_Child%27s_Bath.jpg',
+      },
+      {
+        id: 28,
+        title: 'Little Girl in a Blue Armchair',
+        artist: 'Mary Cassatt',
+        difficulty: 'intermediaire',
+        source: 'Wikimedia Commons',
+        rights: 'Public Domain',
+        sourceUrl: 'https://commons.wikimedia.org/wiki/File:Mary_Cassatt_-_Little_Girl_in_a_Blue_Armchair_-_Google_Art_Project.jpg',
+        tags: ['bleu', 'interieur', 'portrait'],
+        palette: ['#58719c', '#d9c6a8', '#8f5e53', '#cfd7df', '#3f4e6f'],
+        imageUrl: 'https://commons.wikimedia.org/wiki/Special:FilePath/Mary_Cassatt_-_Little_Girl_in_a_Blue_Armchair_-_Google_Art_Project.jpg',
+      },
+      {
+        id: 29,
+        title: 'The Loge',
+        artist: 'Mary Cassatt',
+        difficulty: 'avance',
+        source: 'Wikimedia Commons',
+        rights: 'Public Domain',
+        sourceUrl: 'https://commons.wikimedia.org/wiki/File:Mary_Stevenson_Cassatt_-_In_the_Loge_-_Google_Art_Project.jpg',
+        tags: ['portrait', 'theatre', 'noir et rose'],
+        palette: ['#14151e', '#d6c2b8', '#7f6262', '#ece5de', '#9aa1b8'],
+        imageUrl: 'https://commons.wikimedia.org/wiki/Special:FilePath/Mary_Stevenson_Cassatt_-_In_the_Loge_-_Google_Art_Project.jpg',
+      },
+      {
+        id: 30,
+        title: 'The Green Bodice',
+        artist: 'Marie Bashkirtseff',
+        difficulty: 'avance',
+        source: 'Wikimedia Commons',
+        rights: 'Public Domain',
+        sourceUrl: 'https://commons.wikimedia.org/wiki/File:Marie_Bashkirtseff_-_The_Green_Bodice.jpg',
+        tags: ['portrait', 'vert profond', 'matiere'],
+        palette: ['#40523e', '#d6c2a7', '#8c6a56', '#1f2123', '#b8a485'],
+        imageUrl: 'https://commons.wikimedia.org/wiki/Special:FilePath/Marie_Bashkirtseff_-_The_Green_Bodice.jpg',
+      },
+      {
+        id: 31,
+        title: 'At the Moulin Rouge',
+        artist: 'Henri de Toulouse-Lautrec',
+        difficulty: 'avance',
+        source: 'Wikimedia Commons',
+        rights: 'Public Domain',
+        sourceUrl: 'https://commons.wikimedia.org/wiki/File:At_the_Moulin_Rouge,_by_Henri_de_Toulouse-Lautrec.jpg',
+        tags: ['nuit', 'figure', 'ambiance'],
+        palette: ['#50624d', '#d6c49d', '#7b343d', '#101115', '#98a7b5'],
+        imageUrl: 'https://commons.wikimedia.org/wiki/Special:FilePath/At_the_Moulin_Rouge,_by_Henri_de_Toulouse-Lautrec.jpg',
+      },
+      {
+        id: 32,
+        title: 'The Pink Cloud, Antibes',
+        artist: 'Henri-Edmond Cross',
+        difficulty: 'avance',
+        source: 'Wikimedia Commons',
+        rights: 'Public Domain',
+        sourceUrl: 'https://commons.wikimedia.org/wiki/File:Henri-Edmond_Cross_-_The_Pink_Cloud,_Antibes.jpg',
+        tags: ['mediterranee', 'rose', 'divisionnisme'],
+        palette: ['#eca7b6', '#7aa5cf', '#7e9a63', '#f0d9ba', '#62547a'],
+        imageUrl: 'https://commons.wikimedia.org/wiki/Special:FilePath/Henri-Edmond_Cross_-_The_Pink_Cloud,_Antibes.jpg',
+      },
+      {
+        id: 33,
+        title: 'The Goose Girl',
+        artist: 'Jean-Francois Millet',
+        difficulty: 'intermediaire',
+        source: 'Wikimedia Commons',
+        rights: 'Public Domain',
+        sourceUrl: 'https://commons.wikimedia.org/wiki/File:Jean-Fran%C3%A7ois_Millet_-_The_Goose_Girl_-_Google_Art_Project.jpg',
+        tags: ['campagne', 'figure', 'tons terre'],
+        palette: ['#89704f', '#c6b28c', '#6f7d74', '#d8d4c8', '#4d4034'],
+        imageUrl: 'https://commons.wikimedia.org/wiki/Special:FilePath/Jean-Fran%C3%A7ois_Millet_-_The_Goose_Girl_-_Google_Art_Project.jpg',
+      },
     ];
 
-    function TabBibliotheque() {
+    function buildReferenceImage(ref) {
+      if (ref.imageUrl) return ref.imageUrl;
+
+      const svg = `
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 1200">
+          <defs>
+            <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="${ref.palette[0]}" />
+              <stop offset="100%" stop-color="${ref.palette[ref.palette.length - 1]}" />
+            </linearGradient>
+          </defs>
+          <rect width="900" height="1200" fill="url(#bg)" />
+          <rect x="74" y="74" width="752" height="1052" rx="42" fill="rgba(8,10,24,0.24)" stroke="rgba(255,255,255,0.28)" />
+          <circle cx="250" cy="280" r="170" fill="${ref.palette[1]}" opacity="0.82" />
+          <circle cx="590" cy="390" r="200" fill="${ref.palette[2]}" opacity="0.8" />
+          <circle cx="430" cy="700" r="245" fill="${ref.palette[3]}" opacity="0.72" />
+          <circle cx="685" cy="820" r="165" fill="${ref.palette[4]}" opacity="0.8" />
+          <text x="110" y="980" fill="white" font-family="Inter, Arial, sans-serif" font-size="72" font-weight="800">${ref.title}</text>
+          <text x="110" y="1048" fill="rgba(255,255,255,0.82)" font-family="Inter, Arial, sans-serif" font-size="38">${ref.artist}</text>
+        </svg>
+      `;
+      return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
+    }
+
+    function TabBibliotheque({ onUseReference }) {
       const [q, setQ] = useState('');
       const [active, setActive] = useState(null);
+      const [difficulty, setDifficulty] = useState('tous');
       const filtered = REFS.filter(r =>
-        !q || r.title.toLowerCase().includes(q.toLowerCase()) ||
-        r.artist.toLowerCase().includes(q.toLowerCase()) ||
-        r.tags.some(t => t.includes(q.toLowerCase()))
+        (difficulty === 'tous' || r.difficulty === difficulty) &&
+        (
+          !q ||
+          r.title.toLowerCase().includes(q.toLowerCase()) ||
+          r.artist.toLowerCase().includes(q.toLowerCase()) ||
+          r.tags.some(t => t.includes(q.toLowerCase()))
+        )
       );
+
+      const difficulties = [
+        { id: 'tous', label: 'Tous' },
+        { id: 'debutant', label: 'Debutant' },
+        { id: 'intermediaire', label: 'Intermediaire' },
+        { id: 'avance', label: 'Avance' },
+      ];
 
       return (
         <div className="screen" style={{ height: '100%', display: 'flex', flexDirection: 'column', gap: 10, padding: '12px 16px 0' }}>
           <LG r={18} innerStyle={{ padding: '11px 14px', display: 'flex', alignItems: 'center', gap: 9 }}>
             <svg width="15" height="15" fill="none" stroke="rgba(255,255,255,.45)" strokeWidth="2" strokeLinecap="round"><circle cx="6.5" cy="6.5" r="4.5" /><path d="M11 11l3 3" /></svg>
-            <input value={q} onChange={e => setQ(e.target.value)}
-              placeholder="Rechercher œuvres, artistes…"
+            <input
+              value={q}
+              onChange={e => setQ(e.target.value)}
+              placeholder="Rechercher oeuvres, artistes..."
               style={{ flex: 1, background: 'none', border: 'none', outline: 'none', color: 'white', fontSize: 14, fontFamily: 'inherit' }}
             />
             {q && <button onClick={() => setQ('')} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,.4)', cursor: 'pointer', fontSize: 18 }}>×</button>}
           </LG>
+
+          <div style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 2 }}>
+            {difficulties.map(item => (
+              <LG key={item.id} r={16} style={{ flexShrink: 0 }}>
+                <button
+                  onClick={() => setDifficulty(item.id)}
+                  style={{
+                    border: 'none',
+                    background: difficulty === item.id
+                      ? 'linear-gradient(135deg,rgba(166,216,255,.24),rgba(77,122,255,.24))'
+                      : 'rgba(255,255,255,.04)',
+                    color: difficulty === item.id ? 'white' : 'rgba(255,255,255,.72)',
+                    padding: '10px 14px',
+                    borderRadius: 15,
+                    fontSize: 12,
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                  }}
+                >
+                  {item.label}
+                </button>
+              </LG>
+            ))}
+          </div>
 
           <div style={{ flex: 1, overflowY: 'auto' }}>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 9, paddingBottom: 14 }}>
               {filtered.map(ref => (
                 <LG key={ref.id} r={20} style={{ cursor: 'pointer' }}>
                   <div onClick={() => setActive(active === ref.id ? null : ref.id)}>
-                    <div style={{ height: 80, display: 'flex', borderRadius: '19px 19px 0 0', overflow: 'hidden', position: 'relative' }}>
-                      {ref.palette.map((c, i) => (
-                        <div key={i} style={{ flex: 1, background: c, position: 'relative' }}>
-                          <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at 40% 35%,rgba(255,255,255,.18),transparent 65%)' }} />
-                        </div>
-                      ))}
-                      <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg,transparent 40%,rgba(5,2,30,.65) 100%)' }} />
+                    <div style={{ height: 110, borderRadius: '19px 19px 0 0', overflow: 'hidden', position: 'relative', background: '#15214a' }}>
+                      <img
+                        src={buildReferenceImage(ref)}
+                        alt={ref.title}
+                        loading="lazy"
+                        style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                      />
+                      <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg,transparent 35%,rgba(5,2,30,.68) 100%)' }} />
                     </div>
                     <div style={{ padding: '9px 11px' }}>
                       <div style={{ color: 'white', fontSize: 12, fontWeight: 700 }}>{ref.title}</div>
                       <div style={{ color: 'rgba(255,255,255,.45)', fontSize: 11, marginTop: 2 }}>{ref.artist}</div>
+                      <div style={{ color: 'rgba(212,236,255,.72)', fontSize: 10, fontWeight: 700, marginTop: 5, textTransform: 'uppercase', letterSpacing: 1.3 }}>
+                        {ref.difficulty}
+                      </div>
                     </div>
                   </div>
                   {active === ref.id && (
@@ -483,11 +1622,25 @@
                           <span key={t} style={{ padding: '3px 8px', borderRadius: 8, background: 'rgba(255,255,255,.09)', border: '1px solid rgba(255,255,255,.13)', color: 'rgba(255,255,255,.6)', fontSize: 10, fontWeight: 500 }}>{t}</span>
                         ))}
                       </div>
+                      <div style={{ color: 'rgba(255,255,255,.55)', fontSize: 10, lineHeight: 1.45, marginBottom: 10 }}>
+                        {ref.source} · {ref.rights}
+                      </div>
                       <LG r={11} innerStyle={{ padding: '1px' }}>
-                        <button style={{ width: '100%', padding: '9px', borderRadius: 10, background: 'linear-gradient(135deg,rgba(100,80,220,.25),rgba(80,60,180,.15))', border: 'none', cursor: 'pointer', color: 'white', fontSize: 12, fontWeight: 600 }}>
-                          Utiliser comme référence →
+                        <button
+                          onClick={() => onUseReference(buildReferenceImage(ref))}
+                          style={{ width: '100%', padding: '9px', borderRadius: 10, background: 'linear-gradient(135deg,rgba(100,80,220,.25),rgba(80,60,180,.15))', border: 'none', cursor: 'pointer', color: 'white', fontSize: 12, fontWeight: 600 }}
+                        >
+                          Utiliser comme reference →
                         </button>
                       </LG>
+                      <a
+                        href={ref.sourceUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        style={{ display: 'block', marginTop: 8, color: 'rgba(206,232,255,.78)', fontSize: 10, textDecoration: 'none' }}
+                      >
+                        Voir la source ↗
+                      </a>
                     </div>
                   )}
                 </LG>
@@ -498,31 +1651,42 @@
       );
     }
 
-    /* ── Tab Bar ── */
     function TabBar({ tab, setTab }) {
       const tabs = [
-        { id: 'calque', label: 'Calque', svg: (
-          <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 22 22">
-            <rect x="3" y="3" width="16" height="16" rx="3"/>
-            <path d="M3 9.5h16M3 13.5h16" strokeWidth="1.2" strokeDasharray="3 2"/>
-            <circle cx="11" cy="11.5" r="2.5" fill="currentColor" stroke="none" opacity=".8"/>
-          </svg>
-        )},
-        { id: 'couleurs', label: 'Couleurs', svg: (
-          <svg width="20" height="20" viewBox="0 0 22 22">
-            <circle cx="8" cy="9" r="5" fill="currentColor" opacity=".55"/>
-            <circle cx="14" cy="9" r="5" fill="currentColor" opacity=".55"/>
-            <circle cx="11" cy="14" r="5" fill="currentColor" opacity=".55"/>
-          </svg>
-        )},
-        { id: 'biblio', label: 'Biblio.', svg: (
-          <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" viewBox="0 0 22 22">
-            <rect x="3" y="4" width="16" height="14" rx="2.5"/>
-            <path d="M3 9h16M8 4v5"/>
-            <rect x="5.5" y="11.5" width="4" height="4" rx="1" fill="currentColor" stroke="none" opacity=".7"/>
-            <path d="M12.5 12h4M12.5 15h4" strokeWidth="1.3"/>
-          </svg>
-        )},
+        {
+          id: 'calque',
+          label: 'Calque',
+          svg: (
+            <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 22 22">
+              <rect x="3" y="3" width="16" height="16" rx="3" />
+              <path d="M3 9.5h16M3 13.5h16" strokeWidth="1.2" strokeDasharray="3 2" />
+              <circle cx="11" cy="11.5" r="2.5" fill="currentColor" stroke="none" opacity=".8" />
+            </svg>
+          ),
+        },
+        {
+          id: 'couleurs',
+          label: 'Couleurs',
+          svg: (
+            <svg width="20" height="20" viewBox="0 0 22 22">
+              <circle cx="8" cy="9" r="5" fill="currentColor" opacity=".55" />
+              <circle cx="14" cy="9" r="5" fill="currentColor" opacity=".55" />
+              <circle cx="11" cy="14" r="5" fill="currentColor" opacity=".55" />
+            </svg>
+          ),
+        },
+        {
+          id: 'biblio',
+          label: 'Biblio.',
+          svg: (
+            <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" viewBox="0 0 22 22">
+              <rect x="3" y="4" width="16" height="14" rx="2.5" />
+              <path d="M3 9h16M8 4v5" />
+              <rect x="5.5" y="11.5" width="4" height="4" rx="1" fill="currentColor" stroke="none" opacity=".7" />
+              <path d="M12.5 12h4M12.5 15h4" strokeWidth="1.3" />
+            </svg>
+          ),
+        },
       ];
       const activeIdx = tabs.findIndex(t => t.id === tab);
       const pct = (100 / tabs.length) * activeIdx;
@@ -531,25 +1695,45 @@
         <div style={{ padding: '6px 16px 8px' }}>
           <LG r={24}>
             <div style={{ display: 'flex', padding: '4px', gap: 0, position: 'relative' }}>
-              <div style={{
-                position: 'absolute', top: 4, bottom: 4,
-                left: `calc(${pct}% + 4px)`,
-                width: `calc(${100 / tabs.length}% - 8px)`,
-                borderRadius: 20,
+              <div
+                style={{
+                  position: 'absolute',
+                  top: 4,
+                  bottom: 4,
+                  left: `calc(${pct}% + 4px)`,
+                  width: `calc(${100 / tabs.length}% - 8px)`,
+                  borderRadius: 20,
                 background: 'linear-gradient(160deg,rgba(255,255,255,.18) 0%,rgba(255,255,255,.07) 100%)',
-                boxShadow: 'inset 0 1px 0 rgba(255,255,255,.28), 0 2px 12px rgba(0,0,30,.45)',
-                backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
+                boxShadow: 'inset 0 1px 0 rgba(255,255,255,.45), inset 0 -10px 18px rgba(0,15,70,.18), 0 2px 12px rgba(0,0,30,.25)',
+                backdropFilter: 'blur(20px)',
+                WebkitBackdropFilter: 'blur(20px)',
                 transition: 'left .35s cubic-bezier(0.34,1.56,0.64,1)',
-                pointerEvents: 'none', zIndex: 0,
-              }} />
+                  pointerEvents: 'none',
+                  zIndex: 0,
+                }}
+              />
               {tabs.map(t => (
-                <button key={t.id} onClick={() => setTab(t.id)} style={{
-                  flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3,
-                  padding: '8px 4px', borderRadius: 20, cursor: 'pointer',
-                  border: 'none', outline: 'none', background: 'transparent',
-                  color: tab === t.id ? 'white' : 'rgba(255,255,255,.38)',
-                  transition: 'color .2s', position: 'relative', zIndex: 1,
-                }}>
+                <button
+                  key={t.id}
+                  onClick={() => setTab(t.id)}
+                  style={{
+                    flex: 1,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: 3,
+                    padding: '8px 4px',
+                    borderRadius: 20,
+                    cursor: 'pointer',
+                    border: 'none',
+                    outline: 'none',
+                    background: 'transparent',
+                    color: tab === t.id ? 'white' : 'rgba(255,255,255,.38)',
+                    transition: 'color .2s',
+                    position: 'relative',
+                    zIndex: 1,
+                  }}
+                >
                   <div style={{ transform: tab === t.id ? 'scale(1.12)' : 'scale(1)', transition: 'transform .35s cubic-bezier(0.34,1.56,0.64,1)' }}>
                     {t.svg}
                   </div>
@@ -562,52 +1746,121 @@
       );
     }
 
-    /* ── Root App ── */
     function App() {
-      const [tab, setTab] = useState(() => localStorage.getItem('pointure_tab') || 'calque');
-      const switchTab = t => { setTab(t); localStorage.setItem('pointure_tab', t); };
+      const [tab, setTab] = useState('calque');
+      const [overlayImage, setOverlayImage] = useState(null);
+      const [cameraMode, setCameraMode] = useState(false);
+      const [opacity, setOpacity] = useState(65);
+      const [zoom, setZoom] = useState(100);
+      const [rotation, setRotation] = useState(0);
+      const [mirror, setMirror] = useState(false);
+      const [grid, setGrid] = useState(false);
+
+      const switchTab = nextTab => {
+        setTab(nextTab);
+        localStorage.setItem('pointure_tab', nextTab);
+      };
+
+      const handleImportImage = image => {
+        setOverlayImage(image);
+        switchTab('calque');
+      };
+
+      const handleUseReference = image => {
+        setOverlayImage(image);
+        switchTab('calque');
+      };
+
+      const handleRemoveImage = () => {
+        setOverlayImage(null);
+        setCameraMode(false);
+      };
+
+      if (cameraMode && overlayImage) {
+        return (
+          <CameraOverlay
+            image={overlayImage}
+            opacity={opacity}
+            zoom={zoom}
+            rotation={rotation}
+            mirror={mirror}
+            grid={grid}
+            setZoom={setZoom}
+            onClose={() => setCameraMode(false)}
+          />
+        );
+      }
 
       return (
         <div style={{ position: 'fixed', inset: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-          {/* Animated background */}
           <div style={{ position: 'fixed', inset: 0, zIndex: 0 }}>
-            <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(160deg,#0e0b3d 0%,#17108a 20%,#0a1460 40%,#1a0960 65%,#07082a 100%)' }} />
+            <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg,#eef3fb 0%,#c7d6f7 16%,#6f8fe9 38%,#2d54cf 66%,#081230 100%)' }} />
+            <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at 15% 8%,rgba(255,255,255,.92),transparent 18%), radial-gradient(circle at 82% 12%,rgba(218,244,236,.76),transparent 18%), radial-gradient(circle at 55% 22%,rgba(162,188,255,.24),transparent 22%)' }} />
+            <div style={{ position: 'absolute', inset: '-6% -8%', background: 'linear-gradient(132deg, transparent 0%, transparent 58%, rgba(255,255,255,.12) 61%, rgba(255,255,255,.82) 64%, rgba(222,244,214,.9) 66%, rgba(176,219,198,.82) 68%, rgba(255,255,255,.12) 71%, transparent 74%)', filter: 'blur(3px)', transform: 'rotate(-10deg) scale(1.08)', opacity: .98 }} />
+            <div style={{ position: 'absolute', inset: '-8% -10%', background: 'repeating-linear-gradient(116deg, transparent 0 16px, rgba(255,255,255,.02) 16px 30px, rgba(255,255,255,.4) 30px 34px, rgba(234,247,210,.58) 34px 38px, rgba(255,255,255,.04) 38px 54px)', filter: 'blur(2px)', transform: 'translateX(18%) translateY(-6%) rotate(-8deg)', opacity: .8, clipPath: 'polygon(58% 0%, 100% 0%, 100% 46%, 72% 30%)' }} />
+            <div style={{ position: 'absolute', inset: '-10% -8%', background: 'linear-gradient(118deg, transparent 0%, transparent 18%, rgba(255,255,255,.16) 21%, rgba(255,255,255,.72) 24%, rgba(176,214,255,.72) 28%, rgba(79,118,248,.96) 33%, rgba(31,58,186,.98) 39%, rgba(70,108,240,.94) 46%, rgba(175,226,255,.72) 51%, rgba(255,255,255,.5) 55%, rgba(255,255,255,.1) 58%, transparent 62%)', filter: 'blur(8px)', transform: 'rotate(-12deg) scale(1.14)', opacity: .98 }} />
+            <div style={{ position: 'absolute', inset: '-8% -8%', background: 'linear-gradient(140deg, transparent 0%, transparent 54%, rgba(92,137,255,.18) 58%, rgba(31,63,202,.72) 64%, rgba(15,35,130,.92) 72%, rgba(68,106,240,.22) 80%, transparent 86%)', filter: 'blur(10px)', transform: 'rotate(-10deg) scale(1.08)', opacity: .92 }} />
+            <div style={{ position: 'absolute', inset: '-8% -6%', background: 'radial-gradient(ellipse at 18% 100%, rgba(255,255,255,.16), transparent 34%), radial-gradient(ellipse at 74% 100%, rgba(44,108,255,.22), transparent 36%)', filter: 'blur(24px)', opacity: .82 }} />
             {[
-              { w: 340, h: 300, t: -80, l: -80, c: '#3b1dc8', d: '0s' },
-              { w: 280, h: 280, t: '35%', r: -70, c: '#1a3dd4', d: '4s' },
-              { w: 240, h: 240, b: '18%', l: '15%', c: '#6b1fa8', d: '8s' },
-              { w: 200, h: 200, t: '20%', l: '30%', c: '#0d3fa8', d: '2s' },
+              { w: 380, h: 260, t: -70, l: -60, c: 'rgba(255,255,255,.18)', d: '0s' },
+              { w: 320, h: 220, t: '20%', r: -70, c: 'rgba(123,214,255,.18)', d: '4s' },
+              { w: 240, h: 240, b: '8%', l: '18%', c: 'rgba(90,115,255,.18)', d: '8s' },
             ].map((b, i) => (
-              <div key={i} style={{
-                position: 'absolute', width: b.w, height: b.h, borderRadius: '50%',
-                background: b.c, filter: 'blur(60px)', opacity: .7,
-                top: b.t, left: b.l, right: b.r, bottom: b.b,
-                animation: `blobDrift 10s ease-in-out ${b.d} infinite`,
-              }} />
+              <div
+                key={i}
+                style={{
+                  position: 'absolute',
+                  width: b.w,
+                  height: b.h,
+                  borderRadius: '50%',
+                  background: b.c,
+                  filter: 'blur(60px)',
+                  opacity: .7,
+                  top: b.t,
+                  left: b.l,
+                  right: b.r,
+                  bottom: b.b,
+                  animation: `blobDrift 10s ease-in-out ${b.d} infinite`,
+                }}
+              />
             ))}
           </div>
 
-          {/* App shell */}
           <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, paddingTop: 'env(safe-area-inset-top,0px)' }}>
-            {/* Header */}
             <div style={{ padding: '12px 18px 8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
               <div>
-                <div style={{ color: 'rgba(255,255,255,.38)', fontSize: 10, fontWeight: 700, letterSpacing: 2.5, textTransform: 'uppercase' }}>Application</div>
-                <div style={{ color: 'white', fontSize: 28, fontWeight: 800, letterSpacing: -.8, lineHeight: 1.1 }}>Pointure</div>
+                <div style={{ color: 'rgba(245,249,255,.82)', textShadow: '0 1px 8px rgba(7,18,56,.3)', fontSize: 10, fontWeight: 700, letterSpacing: 2.9, textTransform: 'uppercase' }}>Application</div>
+                <div style={{ color: 'white', fontSize: 29, fontWeight: 800, letterSpacing: -1, lineHeight: 1.05, textShadow: '0 8px 22px rgba(18,38,110,.3)' }}>Pointure</div>
               </div>
-              <LG r={22} innerStyle={{ padding: '7px 14px' }}>
-                <span style={{ color: 'rgba(255,255,255,.8)', fontSize: 13, fontWeight: 500 }}>v0.1 PWA</span>
+              <LG r={22} innerStyle={{ padding: '8px 14px' }}>
+                <span style={{ color: 'rgba(255,255,255,.86)', fontSize: 13, fontWeight: 500, letterSpacing: '.02em' }}>v0.1 PWA</span>
               </LG>
             </div>
 
-            {/* Screen content — défile */}
             <div style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', minHeight: 0, WebkitOverflowScrolling: 'touch' }}>
-              {tab === 'calque'   && <TabCalque />}
-              {tab === 'couleurs' && <TabCouleurs />}
-              {tab === 'biblio'   && <TabBibliotheque />}
+              {tab === 'calque' && (
+                <TabCalque
+                  image={overlayImage}
+                  opacity={opacity}
+                  setOpacity={setOpacity}
+                  zoom={zoom}
+                  setZoom={setZoom}
+                  rotation={rotation}
+                  setRotation={setRotation}
+                  mirror={mirror}
+                  setMirror={setMirror}
+                  grid={grid}
+                  setGrid={setGrid}
+                  onImportImage={handleImportImage}
+                  onOpenLibrary={() => switchTab('biblio')}
+                  onRemoveImage={handleRemoveImage}
+                  onOpenCamera={() => setCameraMode(true)}
+                />
+              )}
+              {tab === 'couleurs' && <TabCouleurs overlayImage={overlayImage} />}
+              {tab === 'biblio' && <TabBibliotheque onUseReference={handleUseReference} />}
             </div>
 
-            {/* Tab bar — juste au-dessus de la barre système Apple */}
             <div style={{ flexShrink: 0, borderTop: '1px solid rgba(255,255,255,0.06)' }}>
               <TabBar tab={tab} setTab={switchTab} />
             </div>

@@ -1,7 +1,8 @@
-const CACHE = 'pointure-v2';
+const CACHE = 'pointure-v13';
 const ASSETS = [
   '/pointure/',
   '/pointure/index.html',
+  '/pointure/src/data/paintData.js',
   '/pointure/src/ui/glass.css',
   '/pointure/public/manifest.json'
 ];
