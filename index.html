@@ -180,21 +180,11 @@
         setActive(false);
       };
 
-      // Quand une image est importée et que la caméra n'est pas encore active,
-      // on attend que React ait re-rendu (video monté) puis on démarre
-      const pendingCameraStart = useRef(false);
-      useEffect(() => {
-        if (pendingCameraStart.current && image && !active && videoRef.current) {
-          pendingCameraStart.current = false;
-          startCamera();
-        }
-      }, [image]);
-
       const handleImageImport = e => {
         const f = e.target.files[0];
         if (!f) return;
-        if (!active) pendingCameraStart.current = true;
         setImage(URL.createObjectURL(f));
+        if (!active) startCamera();
       };
 
       const overlayTransform = [
@@ -530,7 +520,7 @@
       const pct = (100 / tabs.length) * activeIdx;
 
       return (
-        <div style={{ padding: '6px 16px 0' }}>
+        <div style={{ padding: '6px 16px 6px' }}>
           <LG r={24}>
             <div style={{ display: 'flex', padding: '4px', gap: 0, position: 'relative' }}>
               <div style={{
@@ -609,8 +599,8 @@
               {tab === 'biblio'   && <TabBibliotheque />}
             </div>
 
-            {/* Tab bar — fixe en bas, collée à la barre système */}
-            <div style={{ flexShrink: 0, paddingTop: '4px', paddingBottom: 'env(safe-area-inset-bottom,0px)', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+            {/* Tab bar — juste au-dessus de la barre système Apple */}
+            <div style={{ flexShrink: 0, paddingBottom: 'env(safe-area-inset-bottom,0px)', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
               <TabBar tab={tab} setTab={switchTab} />
             </div>
           </div>
