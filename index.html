@@ -1046,6 +1046,7 @@
                         onChange={e => setSelectedPaintId(e.target.value)}
                         style={{
                           flex: 1,
+                          minWidth: 0,
                           borderRadius: 14,
                           border: '1px solid rgba(255,255,255,.16)',
                           background: 'rgba(255,255,255,.08)',
@@ -1090,7 +1091,7 @@
               onChange={e => setTargetColor(e.target.value)}
               value={targetColor || '#7e8df0'}
             />
-            <div style={{ height: 16 }} />
+            <div style={{ height: 24 }} />
           </div>
 
           {showSampler && overlayImage && (
