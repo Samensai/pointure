@@ -180,12 +180,21 @@
         setActive(false);
       };
 
+      // Quand une image est importée et que la caméra n'est pas encore active,
+      // on attend que React ait re-rendu (video monté) puis on démarre
+      const pendingCameraStart = useRef(false);
+      useEffect(() => {
+        if (pendingCameraStart.current && image && !active && videoRef.current) {
+          pendingCameraStart.current = false;
+          startCamera();
+        }
+      }, [image]);
+
       const handleImageImport = e => {
         const f = e.target.files[0];
         if (!f) return;
+        if (!active) pendingCameraStart.current = true;
         setImage(URL.createObjectURL(f));
-        // Lance automatiquement la caméra si pas encore active
-        if (!active) startCamera();
       };
 
       const overlayTransform = [
@@ -581,7 +590,7 @@
           </div>
 
           {/* App shell */}
-          <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', minHeight: '100vh', paddingTop: 'env(safe-area-inset-top,0px)' }}>
+          <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, paddingTop: 'env(safe-area-inset-top,0px)' }}>
             {/* Header */}
             <div style={{ padding: '12px 18px 8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
               <div>
@@ -601,7 +610,7 @@
             </div>
 
             {/* Tab bar — fixe en bas, collée à la barre système */}
-            <div style={{ flexShrink: 0, padding: '4px 0 0', paddingBottom: 'env(safe-area-inset-bottom, 4px)', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+            <div style={{ flexShrink: 0, paddingTop: '4px', paddingBottom: 'env(safe-area-inset-bottom,0px)', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
               <TabBar tab={tab} setTab={switchTab} />
             </div>
           </div>
