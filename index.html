@@ -1041,12 +1041,12 @@
                         ))}
                       </select>
                       <div style={{ display: 'flex', gap: 8 }}>
+                      <div style={{ flex: 1, minWidth: 0 }}>
                       <select
                         value={selectedPaintId}
                         onChange={e => setSelectedPaintId(e.target.value)}
                         style={{
-                          flex: 1,
-                          minWidth: 0,
+                          width: '100%',
                           borderRadius: 14,
                           border: '1px solid rgba(255,255,255,.16)',
                           background: 'rgba(255,255,255,.08)',
@@ -1062,6 +1062,7 @@
                           </option>
                         ))}
                       </select>
+                      </div>
                       <button
                         onClick={addPaint}
                         disabled={availableByBrand.length === 0}
