@@ -456,7 +456,8 @@
       const switchTab = t => { setTab(t); localStorage.setItem('pointure_tab', t); };
 
       return (
-        <div style={{ position: 'relative', width: '100%', minHeight: '100vh', overflow: 'hidden' }}>
+        <div style={{ position: 'fixed', inset: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+          
           {/* Animated background */}
           <div style={{ position: 'fixed', inset: 0, zIndex: 0 }}>
             <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(160deg,#0e0b3d 0%,#17108a 20%,#0a1460 40%,#1a0960 65%,#07082a 100%)' }} />
@@ -474,10 +475,11 @@
               }} />
             ))}
           </div>
-
+      
           {/* App shell */}
-          <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', minHeight: '100vh', paddingTop: 'env(safe-area-inset-top,0px)' }}>
-            {/* Header */}
+          <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, paddingTop: 'env(safe-area-inset-top,0px)' }}>
+            
+            {/* Header — fixe */}
             <div style={{ padding: '12px 18px 8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
               <div>
                 <div style={{ color: 'rgba(255,255,255,.38)', fontSize: 10, fontWeight: 700, letterSpacing: 2.5, textTransform: 'uppercase' }}>Application</div>
@@ -487,18 +489,19 @@
                 <span style={{ color: 'rgba(255,255,255,.8)', fontSize: 13, fontWeight: 500 }}>v0.1 PWA</span>
               </LG>
             </div>
-
-            {/* Screen content */}
-            <div style={{ flex: 1, overflow: 'hidden', minHeight: 0 }}>
+      
+            {/* Screen content — défile */}
+            <div style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', minHeight: 0, WebkitOverflowScrolling: 'touch' }}>
               {tab === 'calque'   && <TabCalque />}
               {tab === 'couleurs' && <TabCouleurs />}
               {tab === 'biblio'   && <TabBibliotheque />}
             </div>
-
-            {/* Tab bar */}
-            <div style={{ padding: '6px 0', paddingBottom: 'calc(env(safe-area-inset-bottom,0px) + 8px)', flexShrink: 0 }}>
+      
+            {/* Tab bar — fixe en bas */}
+            <div style={{ flexShrink: 0, padding: '6px 0', paddingBottom: 'calc(env(safe-area-inset-bottom,0px) + 8px)', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
               <TabBar tab={tab} setTab={switchTab} />
             </div>
+      
           </div>
         </div>
       );
