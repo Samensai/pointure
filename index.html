@@ -20,7 +20,8 @@
   <script src="/pointure/src/data/paintData.js"></script>
 
   <script type="text/babel">
-    const { useState, useRef, useEffect } = React;
+    const { useState, useRef, useEffect, useContext, createContext } = React;
+    const ThemeCtx = createContext(null);
 
     function LG({ children, r = 26, style = {}, innerStyle = {} }) {
       return (
@@ -146,6 +147,7 @@
     }
 
     function ActionButton({ label, sublabel, onClick, danger = false }) {
+      const theme = useContext(ThemeCtx);
       return (
         <LG r={18}>
           <button
@@ -156,14 +158,15 @@
               border: 'none',
               background: danger
                 ? 'linear-gradient(135deg,rgba(154,34,68,.44),rgba(230,90,130,.14) 38%,rgba(48,16,30,.2) 100%)'
-                : 'linear-gradient(135deg,rgba(170,214,255,.18),rgba(86,126,255,.24) 34%,rgba(18,40,122,.2) 100%)',
+                : (theme?.btnBg || 'linear-gradient(135deg,rgba(170,214,255,.18),rgba(86,126,255,.24) 34%,rgba(18,40,122,.2) 100%)'),
               color: 'white',
               cursor: 'pointer',
               textAlign: 'left',
               borderRadius: 17,
+              transition: 'background 0.5s ease, box-shadow 0.5s ease',
               boxShadow: danger
                 ? 'inset 0 1px 0 rgba(255,255,255,.18), inset 0 -24px 34px rgba(72,0,18,.2)'
-                : 'inset 0 1px 0 rgba(255,255,255,.22), inset 0 -24px 34px rgba(14,32,108,.24)',
+                : (theme?.btnShadow || 'inset 0 1px 0 rgba(255,255,255,.22), inset 0 -24px 34px rgba(14,32,108,.24)'),
             }}
           >
             <div style={{ fontSize: 16, fontWeight: 700, letterSpacing: -.2, textShadow: '0 2px 10px rgba(8,18,54,.35)' }}>{label}</div>
@@ -1787,18 +1790,24 @@
         bandPre: 'rgba(176,214,255,.72)', band: ['rgba(79,118,248,.96)', 'rgba(31,58,186,.98)', 'rgba(70,108,240,.94)'], bandPost: 'rgba(175,226,255,.72)',
         shadow: ['rgba(92,137,255,.18)', 'rgba(31,63,202,.72)', 'rgba(15,35,130,.92)', 'rgba(68,106,240,.22)'],
         bottom: 'rgba(44,108,255,.22)', blobs: ['rgba(255,255,255,.18)', 'rgba(123,214,255,.18)', 'rgba(90,115,255,.18)'],
+        btnBg: 'linear-gradient(135deg,rgba(170,214,255,.18),rgba(86,126,255,.24) 34%,rgba(18,40,122,.2) 100%)',
+        btnShadow: 'inset 0 1px 0 rgba(255,255,255,.22), inset 0 -24px 34px rgba(14,32,108,.24)',
       },
       couleurs: {
         g: ['#cf3040', '#de505a', '#e97070', '#180808'],
         bandPre: 'rgba(255,176,180,.72)', band: ['rgba(225,60,75,.96)', 'rgba(155,25,40,.98)', 'rgba(205,55,70,.94)'], bandPost: 'rgba(255,175,180,.72)',
         shadow: ['rgba(200,80,90,.18)', 'rgba(155,25,40,.72)', 'rgba(100,10,20,.92)', 'rgba(205,55,70,.22)'],
         bottom: 'rgba(210,45,65,.22)', blobs: ['rgba(255,255,255,.18)', 'rgba(255,150,160,.18)', 'rgba(195,55,75,.18)'],
+        btnBg: 'linear-gradient(135deg,rgba(255,170,170,.18),rgba(255,86,100,.24) 34%,rgba(122,18,30,.2) 100%)',
+        btnShadow: 'inset 0 1px 0 rgba(255,255,255,.22), inset 0 -24px 34px rgba(108,14,25,.24)',
       },
       biblio: {
         g: ['#a07810', '#be9420', '#d4b040', '#1a1200'],
         bandPre: 'rgba(255,228,120,.72)', band: ['rgba(205,165,25,.96)', 'rgba(135,100,5,.98)', 'rgba(185,150,20,.94)'], bandPost: 'rgba(255,225,130,.72)',
         shadow: ['rgba(185,145,20,.18)', 'rgba(135,100,5,.72)', 'rgba(90,65,2,.92)', 'rgba(185,150,20,.22)'],
         bottom: 'rgba(185,145,15,.22)', blobs: ['rgba(255,255,255,.18)', 'rgba(255,215,95,.18)', 'rgba(195,155,25,.18)'],
+        btnBg: 'linear-gradient(135deg,rgba(255,230,140,.18),rgba(220,165,30,.24) 34%,rgba(100,70,8,.2) 100%)',
+        btnShadow: 'inset 0 1px 0 rgba(255,255,255,.22), inset 0 -24px 34px rgba(80,55,5,.24)',
       },
     };
 
@@ -1865,6 +1874,7 @@
       const t = BG_THEMES[tab] || BG_THEMES.calque;
 
       return (
+        <ThemeCtx.Provider value={t}>
         <div style={{ position: 'fixed', inset: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
           <div style={{ position: 'fixed', inset: 0, zIndex: 0 }}>
             <div style={{ position: 'absolute', inset: 0, background: `linear-gradient(180deg,${t.g[0]} 0%,${t.g[1]} 16%,${t.g[2]} 38%,${t.g[0]} 66%,${t.g[3]} 100%)`, transition: 'background 0.5s ease' }} />
@@ -1907,7 +1917,7 @@
                 <div style={{ color: 'white', fontSize: 29, fontWeight: 800, letterSpacing: -1, lineHeight: 1.05, textShadow: '0 8px 22px rgba(18,38,110,.3)' }}>Pointure</div>
               </div>
               <LG r={22} innerStyle={{ padding: '8px 14px' }}>
-                <span style={{ color: 'rgba(255,255,255,.86)', fontSize: 13, fontWeight: 500, letterSpacing: '.02em' }}>v0.46 PWA</span>
+                <span style={{ color: 'rgba(255,255,255,.86)', fontSize: 13, fontWeight: 500, letterSpacing: '.02em' }}>v0.47 PWA</span>
               </LG>
             </div>
 
@@ -1946,6 +1956,7 @@
             </div>
           </div>
         </div>
+        </ThemeCtx.Provider>
       );
     }
 
