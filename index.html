@@ -1597,7 +1597,6 @@
               {filtered.map(ref => (
                 <LG key={ref.id} r={20} style={{ cursor: 'pointer' }}>
                   <div onClick={() => setActive(active === ref.id ? null : ref.id)}>
-                    <div style={{ height: 110, borderRadius: '19px 19px 0 0', overflow: 'hidden', position: 'relative', background: '#15214a' }}>
                       <ReferenceCardImage refItem={ref} />
                     <div style={{ padding: '9px 11px' }}>
                       <div style={{ color: 'white', fontSize: 12, fontWeight: 700 }}>{ref.title}</div>
