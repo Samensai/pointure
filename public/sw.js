@@ -1,4 +1,4 @@
-const CACHE = 'pointure-v14';
+const CACHE = 'pointure-v16';
 const ASSETS = [
   '/pointure/',
   '/pointure/index.html',
