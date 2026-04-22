@@ -8,7 +8,7 @@
   <meta name="theme-color" content="#2d54cf" />
   <title>Pointure</title>
   <link rel="manifest" href="/pointure/public/manifest.json" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Syne:wght@700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/pointure/src/ui/glass.css" />
 </head>
 <body>
@@ -26,7 +26,7 @@
     function LG({ children, r = 26, style = {}, innerStyle = {} }) {
       const theme = useContext(ThemeCtx);
       const themed = {
-        ...(!innerStyle.background && theme?.lgInner ? { background: theme.lgInner, transition: 'background 0.5s ease' } : {}),
+        ...(!innerStyle.background && theme?.lgInner ? { background: theme.lgInner, transition: 'background var(--motion-base)' } : {}),
         ...(!innerStyle.boxShadow && theme?.lgInnerShadow ? { boxShadow: theme.lgInnerShadow } : {}),
         ...innerStyle,
       };
@@ -67,7 +67,7 @@
               ? `0 0 0 3px rgba(255,255,255,.35), 0 6px 24px ${color}99, 0 2px 8px rgba(0,0,0,.4)`
               : `0 4px 18px ${color}66, 0 2px 6px rgba(0,0,0,.35)`,
             transform: active ? 'scale(1.08)' : 'scale(1)',
-            transition: 'transform .18s, box-shadow .18s',
+            transition: 'transform var(--motion-fast), box-shadow var(--motion-fast)',
             border: 'none',
           }}
         >
@@ -106,7 +106,7 @@
                 marginTop: -size * .2,
                 borderRadius: '50%',
                 background: 'rgba(255,255,255,.45)',
-                animation: 'ripple .7s ease-out forwards',
+                animation: 'ripple .7s var(--motion-curve) forwards',
                 pointerEvents: 'none',
               }}
             />
@@ -152,7 +152,7 @@
       );
     }
 
-    function ActionButton({ label, sublabel, onClick, danger = false }) {
+    function ActionButton({ label, sublabel, onClick, danger = false, flush = false, prominent = false }) {
       const theme = useContext(ThemeCtx);
       const innerBg = danger
         ? 'linear-gradient(135deg,rgba(154,34,68,.44),rgba(230,90,130,.14) 38%,rgba(48,16,30,.2) 100%)'
@@ -160,28 +160,42 @@
       const innerShadow = danger
         ? 'inset 0 1px 0 rgba(255,255,255,.18), inset 0 -24px 34px rgba(72,0,18,.2)'
         : (theme?.btnInnerShadow || 'inset 0 1px 0 rgba(255,255,255,.42), inset 0 -18px 30px rgba(6,14,44,.24)');
-      return (
-        <LG r={18} innerStyle={{ background: innerBg, boxShadow: innerShadow, backdropFilter: 'none', WebkitBackdropFilter: 'none', transition: 'background 0.5s ease, box-shadow 0.5s ease' }}>
-          <button
-            onClick={onClick}
-            style={{
-              width: '100%',
-              padding: '19px 18px',
-              border: 'none',
-              background: 'transparent',
-              color: 'white',
-              cursor: 'pointer',
-              textAlign: 'left',
-              borderRadius: 17,
-            }}
-          >
-            <div style={{ fontSize: 16, fontWeight: 700, letterSpacing: -.2, textShadow: '0 2px 10px rgba(8,18,54,.35)' }}>{label}</div>
-            {sublabel && (
-              <div style={{ marginTop: 7, color: 'rgba(245,249,255,.82)', textShadow: '0 1px 8px rgba(8,18,54,.28)', fontSize: 12, lineHeight: 1.45 }}>
-                {sublabel}
+      const button = (
+        <button
+          onClick={onClick}
+          style={{
+            width: '100%',
+            padding: prominent ? '22px 18px' : (flush ? '18px 2px' : '18px 18px'),
+            border: 'none',
+            background: 'transparent',
+            color: 'white',
+            cursor: 'pointer',
+            textAlign: 'left',
+            borderRadius: flush ? 0 : 17,
+            transition: 'transform var(--motion-fast), opacity var(--motion-fast)',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 14 }}>
+            <div style={{ minWidth: 0 }}>
+              <div className={prominent ? 'display-title' : ''} style={{ fontSize: prominent ? 20 : 16, fontWeight: prominent ? 800 : 700, letterSpacing: prominent ? '-.04em' : '-.02em', textShadow: '0 2px 10px rgba(8,18,54,.35)' }}>{label}</div>
+              {sublabel && (
+                <div style={{ marginTop: 7, color: 'rgba(245,249,255,.78)', textShadow: '0 1px 8px rgba(8,18,54,.28)', fontSize: flush ? 12.5 : 12, lineHeight: 1.5 }}>
+                  {sublabel}
+                </div>
+              )}
+            </div>
+            {!danger && (
+              <div style={{ flexShrink: 0, marginTop: 2, width: 28, height: 28, borderRadius: 999, display: 'grid', placeItems: 'center', background: 'linear-gradient(180deg,rgba(255,255,255,.18),rgba(255,255,255,.06))', boxShadow: 'inset 0 1px 0 rgba(255,255,255,.34)', color: 'rgba(255,255,255,.86)', fontSize: 14 }}>
+                →
               </div>
             )}
-          </button>
+          </div>
+        </button>
+      );
+      if (flush) return button;
+      return (
+        <LG r={prominent ? 22 : 18} innerStyle={{ background: innerBg, boxShadow: innerShadow, backdropFilter: 'none', WebkitBackdropFilter: 'none', transition: 'background var(--motion-base), box-shadow var(--motion-base)' }}>
+          {button}
         </LG>
       );
     }
@@ -470,32 +484,39 @@
         <div className="screen" style={{ height: '100%', display: 'flex', flexDirection: 'column', gap: 12, padding: '12px 16px 0', overflowY: 'auto' }}>
           {!image ? (
             <>
-              <LG r={28} innerStyle={{ padding: '28px 22px' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                  <div style={{ color: 'rgba(240,247,255,.64)', fontSize: 11, fontWeight: 700, letterSpacing: 2.8, textTransform: 'uppercase' }}>
+              <LG r={32} innerStyle={{ padding: '30px 24px', background: 'linear-gradient(180deg, rgba(190,222,255,.28), rgba(88,122,255,.18) 26%, rgba(11,25,94,.34) 100%)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,.48), inset 0 -30px 54px rgba(7,14,56,.28)' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                  <div className="hero-kicker">
                     Ecran d'accueil
                   </div>
-                  <div style={{ color: 'white', fontSize: 30, lineHeight: 1.02, fontWeight: 800, letterSpacing: -1.1, textShadow: '0 8px 24px rgba(140,190,255,.24)' }}>
+                  <div className="display-title" style={{ color: 'white', fontSize: 42, textShadow: '0 12px 32px rgba(140,190,255,.24)' }}>
                     Choisis d'abord ton modele.
                   </div>
-                  <div style={{ color: 'rgba(245,249,255,.68)', fontSize: 14, lineHeight: 1.6 }}>
+                  <div style={{ maxWidth: 500, color: 'rgba(245,249,255,.74)', fontSize: 15, lineHeight: 1.65 }}>
                     Importe un calque depuis ta galerie ou va chercher une inspiration dans la bibliotheque avant d'ouvrir la camera.
                   </div>
                 </div>
               </LG>
 
-              <div style={{ display: 'grid', gap: 10 }}>
-                <ActionButton
-                  label="Importer un modele"
-                  sublabel="Choisir une image depuis l'appareil ou la galerie."
-                  onClick={() => fileRef.current?.click()}
-                />
-                <ActionButton
-                  label="Chercher des inspirations"
-                  sublabel="Ouvrir la bibliotheque puis revenir avec une reference."
-                  onClick={onOpenLibrary}
-                />
-              </div>
+              <LG r={26} innerStyle={{ padding: '10px 16px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                  <div className="hero-kicker" style={{ margin: '4px 0 8px' }}>Actions</div>
+                  <ActionButton
+                    label="Importer un modele"
+                    sublabel="Choisir une image depuis l'appareil ou la galerie."
+                    onClick={() => fileRef.current?.click()}
+                    flush
+                    prominent
+                  />
+                  <div style={{ height: 1, background: 'linear-gradient(90deg, transparent, rgba(255,255,255,.16), transparent)' }} />
+                  <ActionButton
+                    label="Chercher des inspirations"
+                    sublabel="Ouvrir la bibliotheque puis revenir avec une reference."
+                    onClick={onOpenLibrary}
+                    flush
+                  />
+                </div>
+              </LG>
             </>
           ) : (
             <>
@@ -514,32 +535,44 @@
                 </div>
               </LG>
 
-              <ActionButton
-                label="Supprimer"
-                sublabel="Retirer ce calque et revenir a l'accueil."
-                onClick={onRemoveImage}
-                danger
-              />
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, padding: '2px 2px 0' }}>
+                <div>
+                  <div className="hero-kicker">Modele actif</div>
+                  <div className="panel-title" style={{ fontSize: 22 }}>Reglages du calque</div>
+                </div>
+                <div style={{ width: 132, flexShrink: 0 }}>
+                  <ActionButton
+                    label="Supprimer"
+                    sublabel=""
+                    onClick={onRemoveImage}
+                    danger
+                  />
+                </div>
+              </div>
 
               <LG r={24} innerStyle={{ padding: '18px 16px' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+                    <div className="hero-kicker">Outils</div>
+                    <div style={{ color: 'rgba(255,255,255,.46)', fontSize: 11, fontWeight: 600, letterSpacing: '.08em', textTransform: 'uppercase' }}>Ajustement</div>
+                  </div>
                   <GlassSlider value={opacity} onChange={setOpacity} label="Opacite du calque" accent="rgba(160,140,255,1)" />
                   <GlassSlider value={zoom} onChange={setZoom} min={40} max={200} label="Zoom" unit="%" accent="rgba(100,200,255,1)" />
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 8 }}>
                     <LG r={14}>
-                      <button onClick={() => setRotation(value => (value + 90) % 360)} style={{ width: '100%', padding: '10px 0', background: 'linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.01))', border: 'none', cursor: 'pointer', textAlign: 'center', color: 'white', borderRadius: 13 }}>
+                      <button onClick={() => setRotation(value => (value + 90) % 360)} style={{ width: '100%', padding: '10px 0', background: 'linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.01))', border: 'none', cursor: 'pointer', textAlign: 'center', color: 'white', borderRadius: 13, transition: 'transform var(--motion-fast), color var(--motion-fast), background var(--motion-fast)' }}>
                         <div style={{ fontSize: 17, marginBottom: 2 }}>↻</div>
                         <div style={{ color: 'rgba(255,255,255,.45)', fontSize: 10, fontWeight: 500 }}>Rotation</div>
                       </button>
                     </LG>
                     <LG r={14}>
-                      <button onClick={() => setGrid(value => !value)} style={{ width: '100%', padding: '10px 0', background: 'linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.01))', border: 'none', cursor: 'pointer', textAlign: 'center', color: grid ? '#aef6d3' : 'white', borderRadius: 13 }}>
+                      <button onClick={() => setGrid(value => !value)} style={{ width: '100%', padding: '10px 0', background: 'linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.01))', border: 'none', cursor: 'pointer', textAlign: 'center', color: grid ? '#aef6d3' : 'white', borderRadius: 13, transition: 'transform var(--motion-fast), color var(--motion-fast), background var(--motion-fast)' }}>
                         <div style={{ fontSize: 17, marginBottom: 2 }}>⊞</div>
                         <div style={{ color: grid ? '#aef6d3' : 'rgba(255,255,255,.45)', fontSize: 10, fontWeight: 500 }}>Grille</div>
                       </button>
                     </LG>
                     <LG r={14}>
-                      <button onClick={() => setMirror(value => !value)} style={{ width: '100%', padding: '10px 0', background: 'linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.01))', border: 'none', cursor: 'pointer', textAlign: 'center', color: mirror ? '#aef6d3' : 'white', borderRadius: 13 }}>
+                      <button onClick={() => setMirror(value => !value)} style={{ width: '100%', padding: '10px 0', background: 'linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.01))', border: 'none', cursor: 'pointer', textAlign: 'center', color: mirror ? '#aef6d3' : 'white', borderRadius: 13, transition: 'transform var(--motion-fast), color var(--motion-fast), background var(--motion-fast)' }}>
                         <div style={{ fontSize: 17, marginBottom: 2 }}>⇋</div>
                         <div style={{ color: mirror ? '#aef6d3' : 'rgba(255,255,255,.45)', fontSize: 10, fontWeight: 500 }}>Miroir</div>
                       </button>
@@ -767,6 +800,29 @@
       };
     }
 
+    function averageSample(ctx, centerX, centerY, radius = 2) {
+      const size = radius * 2 + 1;
+      const startX = Math.max(0, centerX - radius);
+      const startY = Math.max(0, centerY - radius);
+      const width = Math.min(size, ctx.canvas.width - startX);
+      const height = Math.min(size, ctx.canvas.height - startY);
+      const data = ctx.getImageData(startX, startY, width, height).data;
+      let r = 0;
+      let g = 0;
+      let b = 0;
+      let count = 0;
+      for (let i = 0; i < data.length; i += 4) {
+        const alpha = data[i + 3] / 255;
+        if (alpha <= 0.02) continue;
+        r += data[i] * alpha;
+        g += data[i + 1] * alpha;
+        b += data[i + 2] * alpha;
+        count += alpha;
+      }
+      if (!count) return [255, 255, 255];
+      return [Math.round(r / count), Math.round(g / count), Math.round(b / count)];
+    }
+
     function ColorSamplerOverlay({ image, currentColor, onClose, onConfirm }) {
       const imgRef = useRef(null);
       const canvasRef = useRef(null);
@@ -777,13 +833,20 @@
         setDraftColor(currentColor || '#ffffff');
       }, [currentColor]);
 
+      const getClientPoint = event => {
+        if (event.touches?.length) return event.touches[0];
+        if (event.changedTouches?.length) return event.changedTouches[0];
+        return event;
+      };
+
       const sampleColor = event => {
         const rect = imgRef.current?.getBoundingClientRect();
         const img = imgRef.current;
         if (!rect || !img) return;
 
-        const x = event.clientX - rect.left;
-        const y = event.clientY - rect.top;
+        const point = getClientPoint(event);
+        const x = point.clientX - rect.left;
+        const y = point.clientY - rect.top;
         if (x < 0 || y < 0 || x > rect.width || y > rect.height) return;
 
         const canvas = canvasRef.current || document.createElement('canvas');
@@ -797,11 +860,18 @@
 
         const px = Math.max(0, Math.min(img.naturalWidth - 1, Math.round((x / rect.width) * img.naturalWidth)));
         const py = Math.max(0, Math.min(img.naturalHeight - 1, Math.round((y / rect.height) * img.naturalHeight)));
-        const data = ctx.getImageData(px, py, 1, 1).data;
-        const nextColor = rgbToHex([data[0], data[1], data[2]]);
+        const averaged = averageSample(ctx, px, py, 3);
+        const nextColor = rgbToHex(averaged);
 
         setDraftColor(nextColor);
-        setMarker({ xPct: (x / rect.width) * 100, yPct: (y / rect.height) * 100 });
+        setMarker({
+          xPct: (x / rect.width) * 100,
+          yPct: (y / rect.height) * 100,
+          displayX: x,
+          displayY: y,
+          displayWidth: rect.width,
+          displayHeight: rect.height,
+        });
       };
 
       return (
@@ -818,8 +888,11 @@
 
           <div style={{ position: 'absolute', inset: 'calc(env(safe-area-inset-top, 0px) + 74px) 18px 116px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <div
-              style={{ position: 'relative', width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-              onClick={sampleColor}
+              style={{ position: 'relative', width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', touchAction: 'none' }}
+              onPointerDown={sampleColor}
+              onPointerMove={event => {
+                if (event.buttons === 1 || event.pointerType === 'touch') sampleColor(event);
+              }}
             >
               <img
                 ref={imgRef}
@@ -828,23 +901,50 @@
                 style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', borderRadius: 28, boxShadow: '0 24px 80px rgba(0,0,0,.34)' }}
               />
               {marker && (
-                <div
-                  style={{
-                    position: 'absolute',
-                    left: `${marker.xPct}%`,
-                    top: `${marker.yPct}%`,
-                    transform: 'translate(-50%, -50%)',
-                    width: 34,
-                    height: 34,
-                    borderRadius: '50%',
-                    border: '2px solid rgba(255,255,255,.9)',
-                    boxShadow: `0 0 0 5px ${draftColor}55, 0 6px 20px rgba(0,0,0,.35)`,
-                    background: 'rgba(255,255,255,.08)',
-                    pointerEvents: 'none',
-                  }}
-                >
-                  <div style={{ position: 'absolute', inset: 8, borderRadius: '50%', background: draftColor }} />
-                </div>
+                <>
+                  <div
+                    style={{
+                      position: 'absolute',
+                      left: `${marker.xPct}%`,
+                      top: `${marker.yPct}%`,
+                      transform: 'translate(-50%, calc(-100% - 22px))',
+                      width: 88,
+                      height: 88,
+                      borderRadius: '50%',
+                      border: '2px solid rgba(255,255,255,.92)',
+                      overflow: 'hidden',
+                      boxShadow: '0 14px 30px rgba(0,0,0,.34), 0 0 0 8px rgba(255,255,255,.08)',
+                      backgroundImage: `url("${image}")`,
+                      backgroundRepeat: 'no-repeat',
+                      backgroundSize: `${marker.displayWidth * 2.6}px ${marker.displayHeight * 2.6}px`,
+                      backgroundPosition: `${50 - marker.xPct * 2.6}% ${50 - marker.yPct * 2.6}%`,
+                      pointerEvents: 'none',
+                    }}
+                  >
+                    <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(255,255,255,.18), transparent 34%, transparent 66%, rgba(0,0,0,.16))' }} />
+                    <div style={{ position: 'absolute', left: '50%', top: 0, bottom: 0, width: 1, background: 'rgba(255,255,255,.88)', transform: 'translateX(-50%)' }} />
+                    <div style={{ position: 'absolute', top: '50%', left: 0, right: 0, height: 1, background: 'rgba(255,255,255,.88)', transform: 'translateY(-50%)' }} />
+                  </div>
+                  <div
+                    style={{
+                      position: 'absolute',
+                      left: `${marker.xPct}%`,
+                      top: `${marker.yPct}%`,
+                      transform: 'translate(-50%, -50%)',
+                      width: 34,
+                      height: 34,
+                      borderRadius: '50%',
+                      border: '2px solid rgba(255,255,255,.9)',
+                      boxShadow: `0 0 0 5px ${draftColor}55, 0 6px 20px rgba(0,0,0,.35)`,
+                      background: 'rgba(255,255,255,.08)',
+                      pointerEvents: 'none',
+                    }}
+                  >
+                    <div style={{ position: 'absolute', left: '50%', top: 0, bottom: 0, width: 1, background: 'rgba(255,255,255,.9)', transform: 'translateX(-50%)' }} />
+                    <div style={{ position: 'absolute', top: '50%', left: 0, right: 0, height: 1, background: 'rgba(255,255,255,.9)', transform: 'translateY(-50%)' }} />
+                    <div style={{ position: 'absolute', inset: 10, borderRadius: '50%', background: draftColor, boxShadow: `0 0 10px ${draftColor}88` }} />
+                  </div>
+                </>
               )}
             </div>
           </div>
@@ -866,6 +966,14 @@
       const [showSources, setShowSources] = useState(false);
       const [showSampler, setShowSampler] = useState(false);
       const [myPaints, setMyPaints] = useState(() => DEFAULT_PAINTS);
+      const [savedRecipes, setSavedRecipes] = useState(() => {
+        try {
+          const saved = localStorage.getItem('pointure_saved_recipes');
+          return saved ? JSON.parse(saved) : [];
+        } catch {
+          return [];
+        }
+      });
       const [selectedBrandId, setSelectedBrandId] = useState(() => (PAINT_DATA.brands[0]?.id || ''));
       const [selectedPaintId, setSelectedPaintId] = useState('');
       const colorInputRef = useRef(null);
@@ -895,6 +1003,36 @@
         setMyPaints(prev => prev.filter(paint => paint.id !== paintId));
       };
 
+      const saveRecipe = () => {
+        if (!targetColor || !suggestion) return;
+        const entry = {
+          id: `recipe-${Date.now()}`,
+          target: targetColor,
+          mixed: suggestion.mixed,
+          proximity: suggestion.proximity,
+          parts: suggestion.parts.map(part => ({
+            id: part.id,
+            name: part.name,
+            brandName: part.brandName,
+            color: part.color,
+            ratio: part.ratio,
+          })),
+        };
+        setSavedRecipes(prev => {
+          const next = [entry, ...prev].slice(0, 10);
+          localStorage.setItem('pointure_saved_recipes', JSON.stringify(next));
+          return next;
+        });
+      };
+
+      const removeRecipe = recipeId => {
+        setSavedRecipes(prev => {
+          const next = prev.filter(recipe => recipe.id !== recipeId);
+          localStorage.setItem('pointure_saved_recipes', JSON.stringify(next));
+          return next;
+        });
+      };
+
       return (
         <>
           <div className="screen" style={{ height: '100%', display: 'flex', flexDirection: 'column', gap: 10, padding: '12px 16px 0', overflowY: 'auto' }}>
@@ -903,9 +1041,9 @@
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
                   <div>
                   <div style={{ color: 'rgba(244,249,255,.86)', textShadow: '0 1px 8px rgba(6,18,56,.28)', fontSize: 11, fontWeight: 700, letterSpacing: 2.2, textTransform: 'uppercase' }}>Couleur cible</div>
-                    <div style={{ color: 'white', fontSize: 24, fontWeight: 800, letterSpacing: -.8 }}>Definir une couleur</div>
+                  <div className="panel-title">Definir une couleur</div>
                   </div>
-                  <LG r={16} innerStyle={{ padding: '8px 12px', background: theme?.btnInner, transition: 'background 0.5s ease' }}>
+                  <LG r={16} innerStyle={{ padding: '8px 12px', background: theme?.btnInner, transition: 'background var(--motion-base)' }}>
                     <span style={{ color: targetColor ? 'white' : 'rgba(255,255,255,.58)', fontSize: 12, fontWeight: 700 }}>
                       {targetColor ? targetColor.toUpperCase() : 'Aucune'}
                     </span>
@@ -919,18 +1057,23 @@
                 />
 
                 {showSources && (
-                  <div style={{ display: 'grid', gap: 8 }}>
-                    <ActionButton
-                      label="Depuis le calque"
-                      sublabel={overlayImage ? "Ouvre le calque en plein ecran pour y placer la pipette." : "Ajoute d'abord un calque dans l'onglet Calque pour utiliser la pipette."}
-                      onClick={() => overlayImage && setShowSampler(true)}
-                    />
-                    <ActionButton
-                      label="Depuis la palette"
-                      sublabel="Utilise le selecteur de couleur classique pour definir la teinte cible."
-                      onClick={() => colorInputRef.current?.click()}
-                    />
-                  </div>
+                  <LG r={22} innerStyle={{ padding: '10px 16px' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                      <ActionButton
+                        label="Depuis le calque"
+                        sublabel={overlayImage ? "Ouvre le calque en plein ecran pour y placer la pipette." : "Ajoute d'abord un calque dans l'onglet Calque pour utiliser la pipette."}
+                        onClick={() => overlayImage && setShowSampler(true)}
+                        flush
+                      />
+                      <div style={{ height: 1, background: 'linear-gradient(90deg, transparent, rgba(255,255,255,.16), transparent)' }} />
+                      <ActionButton
+                        label="Depuis la palette"
+                        sublabel="Utilise le selecteur de couleur classique pour definir la teinte cible."
+                        onClick={() => colorInputRef.current?.click()}
+                        flush
+                      />
+                    </div>
+                  </LG>
                 )}
 
                 {targetColor && (
@@ -960,21 +1103,35 @@
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
                     <div>
                       <div style={{ color: 'rgba(244,249,255,.86)', textShadow: '0 1px 8px rgba(6,18,56,.28)', fontSize: 11, fontWeight: 700, letterSpacing: 2.2, textTransform: 'uppercase' }}>Melange suggere</div>
-                      <div style={{ color: 'white', fontSize: 23, fontWeight: 800, letterSpacing: -.8 }}>Recette conseillee</div>
+                      <div className="panel-title" style={{ fontSize: 23 }}>Recette conseillee</div>
                     </div>
-                    <LG r={16} innerStyle={{ padding: '8px 12px', background: theme?.btnInner, transition: 'background 0.5s ease' }}>
+                    <LG r={16} innerStyle={{ padding: '8px 12px', background: theme?.btnInner, transition: 'background var(--motion-base)' }}>
                       <span style={{ color: 'white', fontSize: 12, fontWeight: 700 }}>{suggestion.proximity}% proche</span>
                     </LG>
                   </div>
 
-                  <div style={{ display: 'flex', gap: 14, alignItems: 'center' }}>
-                    <div style={{ width: 54, height: 54, borderRadius: '18px', background: targetColor, boxShadow: `0 10px 24px ${targetColor}66` }} />
-                    <div style={{ width: 54, height: 54, borderRadius: '18px', background: suggestion.mixed, boxShadow: `0 10px 24px ${suggestion.mixed}66` }} />
-                    <div>
-                      <div style={{ color: 'rgba(255,255,255,.56)', fontSize: 11 }}>Couleur trouvee</div>
-                      <div style={{ color: 'white', fontSize: 15, fontWeight: 700, fontFamily: 'monospace' }}>{suggestion.mixed.toUpperCase()}</div>
-                    </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                    <LG r={20}>
+                      <div style={{ padding: '14px 14px 16px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+                        <div style={{ color: 'rgba(255,255,255,.52)', fontSize: 11, fontWeight: 700, letterSpacing: '.12em', textTransform: 'uppercase' }}>Cible</div>
+                        <div style={{ height: 74, borderRadius: 20, background: targetColor, boxShadow: `0 12px 28px ${targetColor}55` }} />
+                        <div style={{ color: 'white', fontSize: 14, fontWeight: 700, fontFamily: 'monospace' }}>{targetColor.toUpperCase()}</div>
+                      </div>
+                    </LG>
+                    <LG r={20}>
+                      <div style={{ padding: '14px 14px 16px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+                        <div style={{ color: 'rgba(255,255,255,.52)', fontSize: 11, fontWeight: 700, letterSpacing: '.12em', textTransform: 'uppercase' }}>Melange obtenu</div>
+                        <div style={{ height: 74, borderRadius: 20, background: suggestion.mixed, boxShadow: `0 12px 28px ${suggestion.mixed}55` }} />
+                        <div style={{ color: 'white', fontSize: 14, fontWeight: 700, fontFamily: 'monospace' }}>{suggestion.mixed.toUpperCase()}</div>
+                      </div>
+                    </LG>
                   </div>
+
+                  <ActionButton
+                    label="Enregistrer cette recette"
+                    sublabel="Retrouve ce melange plus tard dans tes recettes memorisees."
+                    onClick={saveRecipe}
+                  />
 
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                     {suggestion.parts.map(part => (
@@ -994,11 +1151,49 @@
               </LG>
             )}
 
+            {!!savedRecipes.length && (
+              <LG r={24} innerStyle={{ padding: '18px 16px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                  <div>
+                    <div style={{ color: 'rgba(244,249,255,.86)', textShadow: '0 1px 8px rgba(6,18,56,.28)', fontSize: 11, fontWeight: 700, letterSpacing: 2.2, textTransform: 'uppercase' }}>Recettes memorisees</div>
+                    <div className="panel-title" style={{ fontSize: 23 }}>Melanges enregistres</div>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    {savedRecipes.map(recipe => (
+                      <LG key={recipe.id} r={18}>
+                        <div style={{ padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                              <div style={{ width: 26, height: 26, borderRadius: 10, background: recipe.target }} />
+                              <div style={{ width: 26, height: 26, borderRadius: 10, background: recipe.mixed }} />
+                              <div>
+                                <div style={{ color: 'white', fontSize: 13, fontWeight: 700 }}>{recipe.proximity}% proche</div>
+                                <div style={{ color: 'rgba(255,255,255,.46)', fontSize: 11, fontFamily: 'monospace' }}>{recipe.target.toUpperCase()} -> {recipe.mixed.toUpperCase()}</div>
+                              </div>
+                            </div>
+                            <button onClick={() => removeRecipe(recipe.id)} style={{ width: 30, height: 30, borderRadius: '50%', border: '1px solid rgba(255,255,255,.16)', background: 'rgba(255,255,255,.08)', color: 'white', cursor: 'pointer', fontSize: 16 }}>−</button>
+                          </div>
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                            {recipe.parts.map(part => (
+                              <span key={`${recipe.id}-${part.id}`} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '5px 8px', borderRadius: 999, background: 'rgba(255,255,255,.07)', border: '1px solid rgba(255,255,255,.12)', color: 'rgba(255,255,255,.78)', fontSize: 11 }}>
+                                <span style={{ width: 10, height: 10, borderRadius: '50%', background: part.color, boxShadow: `0 0 8px ${part.color}88` }} />
+                                {part.name} {part.ratio}%
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      </LG>
+                    ))}
+                  </div>
+                </div>
+              </LG>
+            )}
+
             <LG r={24} innerStyle={{ padding: '18px 16px' }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                 <div>
                   <div style={{ color: 'rgba(244,249,255,.86)', textShadow: '0 1px 8px rgba(6,18,56,.28)', fontSize: 11, fontWeight: 700, letterSpacing: 2.2, textTransform: 'uppercase' }}>Mes peintures</div>
-                  <div style={{ color: 'white', fontSize: 23, fontWeight: 800, letterSpacing: -.8 }}>Pots disponibles</div>
+                  <div className="panel-title" style={{ fontSize: 23 }}>Pots disponibles</div>
                 </div>
 
                 {!myPaints.length && (
@@ -1752,7 +1947,7 @@
                   backdropFilter: 'blur(20px)',
                   WebkitBackdropFilter: 'blur(20px)',
                   transform: `translate3d(calc(${activeIdx} * (100% + 8px)), 0, 0)`,
-                  transition: 'transform .52s cubic-bezier(0.22,1,0.36,1)',
+                  transition: 'transform var(--motion-base)',
                   willChange: 'transform',
                   pointerEvents: 'none',
                   zIndex: 0,
@@ -1775,12 +1970,12 @@
                     outline: 'none',
                     background: 'transparent',
                     color: tab === t.id ? 'white' : 'rgba(255,255,255,.38)',
-                    transition: 'color .28s ease',
+                    transition: 'color var(--motion-fast)',
                     position: 'relative',
                     zIndex: 1,
                   }}
                 >
-                  <div style={{ transform: tab === t.id ? 'translateY(-1px) scale(1.1)' : 'translateY(0) scale(1)', transition: 'transform .42s cubic-bezier(0.22,1,0.36,1)' }}>
+                  <div style={{ transform: tab === t.id ? 'translateY(-1px) scale(1.1)' : 'translateY(0) scale(1)', transition: 'transform var(--motion-base)' }}>
                     {t.svg}
                   </div>
                   <span style={{ fontSize: 10.5, fontWeight: tab === t.id ? 700 : 400, letterSpacing: .2 }}>{t.label}</span>
@@ -1873,7 +2068,7 @@
         setTab(nextTab);
         localStorage.setItem('pointure_tab', nextTab);
         clearTimeout(bgTransRef.current);
-        bgTransRef.current = setTimeout(() => setFromTab(null), 620);
+        bgTransRef.current = setTimeout(() => setFromTab(null), 1000);
       };
 
       const handleImportImage = image => {
@@ -1926,7 +2121,7 @@
           <div style={{ position: 'fixed', inset: 0, zIndex: 0 }}>
             <BgLayer t={t} />
             {fromTab && (
-              <div key={fromTab} style={{ position: 'absolute', inset: 0, animation: 'bgFadeOut 0.5s ease forwards', pointerEvents: 'none' }}>
+              <div key={fromTab} style={{ position: 'absolute', inset: 0, animation: 'bgFadeOut 1s ease forwards', pointerEvents: 'none' }}>
                 <BgLayer t={BG_THEMES[fromTab]} />
               </div>
             )}
@@ -1936,7 +2131,7 @@
             <div style={{ padding: '12px 18px 8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
               <div>
                 <div style={{ color: 'rgba(245,249,255,.82)', textShadow: '0 1px 8px rgba(7,18,56,.3)', fontSize: 10, fontWeight: 700, letterSpacing: 2.9, textTransform: 'uppercase' }}>Application</div>
-                <div style={{ color: 'white', fontSize: 29, fontWeight: 800, letterSpacing: -1, lineHeight: 1.05, textShadow: '0 8px 22px rgba(18,38,110,.3)' }}>Pointure</div>
+                <div className="display-title" style={{ color: 'white', fontSize: 32, textShadow: '0 8px 22px rgba(18,38,110,.3)' }}>Pointure</div>
               </div>
               <LG r={22} innerStyle={{ padding: '8px 14px' }}>
                 <span style={{ color: 'rgba(255,255,255,.86)', fontSize: 13, fontWeight: 500, letterSpacing: '.02em' }}>v0.49 PWA</span>
@@ -1944,7 +2139,7 @@
             </div>
 
             <div style={{ flex: 1, minHeight: 0, position: 'relative', overflow: 'hidden' }}>
-              <div key={tab} style={{ position: 'absolute', inset: 0, overflowY: 'auto', overflowX: 'hidden', WebkitOverflowScrolling: 'touch', animation: slideDir ? `${slideDir === 'right' ? 'pageSlideInRight' : 'pageSlideInLeft'} 0.38s cubic-bezier(0.22,1,0.36,1) both` : undefined }}>
+              <div key={tab} style={{ position: 'absolute', inset: 0, overflowY: 'auto', overflowX: 'hidden', WebkitOverflowScrolling: 'touch', animation: slideDir ? `${slideDir === 'right' ? 'pageSlideInRight' : 'pageSlideInLeft'} 1s cubic-bezier(0.22,1,0.36,1) both` : undefined }}>
                 {tab === 'calque' && (
                   <TabCalque
                     image={overlayImage}

@@ -1,8 +1,19 @@
+:root {
+  --font-sans: 'Inter', -apple-system, system-ui, sans-serif;
+  --font-display: 'Syne', 'Inter', -apple-system, system-ui, sans-serif;
+  --motion-curve: cubic-bezier(0.22, 1, 0.36, 1);
+  --motion-fast: .34s var(--motion-curve);
+  --motion-base: .56s var(--motion-curve);
+  --motion-slow: 1s var(--motion-curve);
+  --text-soft: rgba(239, 245, 255, .72);
+  --text-kicker: rgba(234, 242, 255, .62);
+}
+
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 html, body {
   height: 100%;
-  font-family: 'Inter', -apple-system, system-ui, sans-serif;
+  font-family: var(--font-sans);
   background: linear-gradient(180deg, #dfe8ff 0%, #aac1ff 18%, #4f78eb 44%, #1b39aa 72%, #08102f 100%);
   background-color: #08102f;
   color: white;
@@ -31,7 +42,31 @@ html, body {
   to { transform: scale(4); opacity: 0; }
 }
 
-.screen { animation: fadeUp .25s ease both; }
+.screen { animation: fadeUp var(--motion-slow) both; }
+
+.display-title {
+  font-family: var(--font-display);
+  font-weight: 800;
+  letter-spacing: -.05em;
+  line-height: .96;
+}
+
+.hero-kicker {
+  color: var(--text-kicker);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .32em;
+  text-transform: uppercase;
+}
+
+.panel-title {
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -.045em;
+  line-height: .98;
+  color: white;
+}
 
 .lg-wrap {
   background: linear-gradient(
@@ -131,7 +166,7 @@ html, body {
   position: absolute;
   left: 0;
   top: 0;
-  transition: width .04s;
+  transition: width var(--motion-fast);
   overflow: hidden;
 }
 
@@ -156,7 +191,7 @@ html, body {
   top: 50%;
   transform: translate(-50%, -50%);
   pointer-events: none;
-  transition: left .04s;
+  transition: left var(--motion-fast);
 }
 
 input[type=range] {
