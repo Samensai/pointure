@@ -1825,6 +1825,29 @@
       },
     };
 
+    const TAB_ORDER = ['calque', 'couleurs', 'biblio'];
+
+    function BgLayer({ t }) {
+      return (
+        <>
+          <div style={{ position: 'absolute', inset: 0, background: `linear-gradient(180deg,${t.g[0]} 0%,${t.g[1]} 16%,${t.g[2]} 38%,${t.g[0]} 66%,${t.g[3]} 100%)` }} />
+          <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at 15% 8%,rgba(255,255,255,.92),transparent 18%), radial-gradient(circle at 82% 12%,rgba(218,244,236,.76),transparent 18%), radial-gradient(circle at 55% 22%,rgba(162,188,255,.24),transparent 22%)' }} />
+          <div style={{ position: 'absolute', inset: '-6% -8%', background: 'linear-gradient(132deg, transparent 0%, transparent 58%, rgba(255,255,255,.12) 61%, rgba(255,255,255,.82) 64%, rgba(222,244,214,.9) 66%, rgba(176,219,198,.82) 68%, rgba(255,255,255,.12) 71%, transparent 74%)', filter: 'blur(3px)', transform: 'rotate(-10deg) scale(1.08)', opacity: .98 }} />
+          <div style={{ position: 'absolute', inset: '-8% -10%', background: 'repeating-linear-gradient(116deg, transparent 0 16px, rgba(255,255,255,.02) 16px 30px, rgba(255,255,255,.4) 30px 34px, rgba(234,247,210,.58) 34px 38px, rgba(255,255,255,.04) 38px 54px)', filter: 'blur(2px)', transform: 'translateX(18%) translateY(-6%) rotate(-8deg)', opacity: .8, clipPath: 'polygon(58% 0%, 100% 0%, 100% 46%, 72% 30%)' }} />
+          <div style={{ position: 'absolute', inset: '-10% -8%', background: `linear-gradient(118deg, transparent 0%, transparent 18%, rgba(255,255,255,.16) 21%, rgba(255,255,255,.72) 24%, ${t.bandPre} 28%, ${t.band[0]} 33%, ${t.band[1]} 39%, ${t.band[2]} 46%, ${t.bandPost} 51%, rgba(255,255,255,.5) 55%, rgba(255,255,255,.1) 58%, transparent 62%)`, filter: 'blur(8px)', transform: 'rotate(-12deg) scale(1.14)', opacity: .98 }} />
+          <div style={{ position: 'absolute', inset: '-8% -8%', background: `linear-gradient(140deg, transparent 0%, transparent 54%, ${t.shadow[0]} 58%, ${t.shadow[1]} 64%, ${t.shadow[2]} 72%, ${t.shadow[3]} 80%, transparent 86%)`, filter: 'blur(10px)', transform: 'rotate(-10deg) scale(1.08)', opacity: .92 }} />
+          <div style={{ position: 'absolute', inset: '-8% -6%', background: `radial-gradient(ellipse at 18% 100%, rgba(255,255,255,.16), transparent 34%), radial-gradient(ellipse at 74% 100%, ${t.bottom}, transparent 36%)`, filter: 'blur(24px)', opacity: .82 }} />
+          {[
+            { w: 380, h: 260, t: -70,    l: -60,  c: t.blobs[0], d: '0s' },
+            { w: 320, h: 220, t: '20%',  r: -70,  c: t.blobs[1], d: '4s' },
+            { w: 240, h: 240, b: '8%',   l: '18%',c: t.blobs[2], d: '8s' },
+          ].map((b, i) => (
+            <div key={i} style={{ position: 'absolute', width: b.w, height: b.h, borderRadius: '50%', background: b.c, filter: 'blur(60px)', opacity: .7, top: b.t, left: b.l, right: b.r, bottom: b.b, animation: `blobDrift 10s ease-in-out ${b.d} infinite` }} />
+          ))}
+        </>
+      );
+    }
+
     function App() {
       const [tab, setTab] = useState('calque');
       const [overlayImage, setOverlayImage] = useState(() => {
@@ -1837,10 +1860,20 @@
       const [rotation, setRotation] = useState(0);
       const [mirror, setMirror] = useState(false);
       const [grid, setGrid] = useState(false);
+      const [fromTab, setFromTab] = useState(null);
+      const [slideDir, setSlideDir] = useState(null);
+      const bgTransRef = useRef(null);
 
       const switchTab = nextTab => {
+        if (nextTab === tab) return;
+        const fi = TAB_ORDER.indexOf(tab);
+        const ti = TAB_ORDER.indexOf(nextTab);
+        setSlideDir(ti > fi ? 'right' : 'left');
+        setFromTab(tab);
         setTab(nextTab);
         localStorage.setItem('pointure_tab', nextTab);
+        clearTimeout(bgTransRef.current);
+        bgTransRef.current = setTimeout(() => setFromTab(null), 620);
       };
 
       const handleImportImage = image => {
@@ -1891,37 +1924,12 @@
         <ThemeCtx.Provider value={t}>
         <div style={{ position: 'fixed', inset: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
           <div style={{ position: 'fixed', inset: 0, zIndex: 0 }}>
-            <div style={{ position: 'absolute', inset: 0, background: `linear-gradient(180deg,${t.g[0]} 0%,${t.g[1]} 16%,${t.g[2]} 38%,${t.g[0]} 66%,${t.g[3]} 100%)`, transition: 'background 0.5s ease' }} />
-            <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at 15% 8%,rgba(255,255,255,.92),transparent 18%), radial-gradient(circle at 82% 12%,rgba(218,244,236,.76),transparent 18%), radial-gradient(circle at 55% 22%,rgba(162,188,255,.24),transparent 22%)' }} />
-            <div style={{ position: 'absolute', inset: '-6% -8%', background: 'linear-gradient(132deg, transparent 0%, transparent 58%, rgba(255,255,255,.12) 61%, rgba(255,255,255,.82) 64%, rgba(222,244,214,.9) 66%, rgba(176,219,198,.82) 68%, rgba(255,255,255,.12) 71%, transparent 74%)', filter: 'blur(3px)', transform: 'rotate(-10deg) scale(1.08)', opacity: .98 }} />
-            <div style={{ position: 'absolute', inset: '-8% -10%', background: 'repeating-linear-gradient(116deg, transparent 0 16px, rgba(255,255,255,.02) 16px 30px, rgba(255,255,255,.4) 30px 34px, rgba(234,247,210,.58) 34px 38px, rgba(255,255,255,.04) 38px 54px)', filter: 'blur(2px)', transform: 'translateX(18%) translateY(-6%) rotate(-8deg)', opacity: .8, clipPath: 'polygon(58% 0%, 100% 0%, 100% 46%, 72% 30%)' }} />
-            <div style={{ position: 'absolute', inset: '-10% -8%', background: `linear-gradient(118deg, transparent 0%, transparent 18%, rgba(255,255,255,.16) 21%, rgba(255,255,255,.72) 24%, ${t.bandPre} 28%, ${t.band[0]} 33%, ${t.band[1]} 39%, ${t.band[2]} 46%, ${t.bandPost} 51%, rgba(255,255,255,.5) 55%, rgba(255,255,255,.1) 58%, transparent 62%)`, filter: 'blur(8px)', transform: 'rotate(-12deg) scale(1.14)', opacity: .98, transition: 'background 0.5s ease' }} />
-            <div style={{ position: 'absolute', inset: '-8% -8%', background: `linear-gradient(140deg, transparent 0%, transparent 54%, ${t.shadow[0]} 58%, ${t.shadow[1]} 64%, ${t.shadow[2]} 72%, ${t.shadow[3]} 80%, transparent 86%)`, filter: 'blur(10px)', transform: 'rotate(-10deg) scale(1.08)', opacity: .92, transition: 'background 0.5s ease' }} />
-            <div style={{ position: 'absolute', inset: '-8% -6%', background: `radial-gradient(ellipse at 18% 100%, rgba(255,255,255,.16), transparent 34%), radial-gradient(ellipse at 74% 100%, ${t.bottom}, transparent 36%)`, filter: 'blur(24px)', opacity: .82, transition: 'background 0.5s ease' }} />
-            {[
-              { w: 380, h: 260, t: -70, l: -60, c: t.blobs[0], d: '0s' },
-              { w: 320, h: 220, t: '20%', r: -70, c: t.blobs[1], d: '4s' },
-              { w: 240, h: 240, b: '8%', l: '18%', c: t.blobs[2], d: '8s' },
-            ].map((b, i) => (
-              <div
-                key={i}
-                style={{
-                  position: 'absolute',
-                  width: b.w,
-                  height: b.h,
-                  borderRadius: '50%',
-                  background: b.c,
-                  filter: 'blur(60px)',
-                  opacity: .7,
-                  top: b.t,
-                  left: b.l,
-                  right: b.r,
-                  bottom: b.b,
-                  animation: `blobDrift 10s ease-in-out ${b.d} infinite`,
-                  transition: 'background 0.5s ease',
-                }}
-              />
-            ))}
+            <BgLayer t={t} />
+            {fromTab && (
+              <div key={fromTab} style={{ position: 'absolute', inset: 0, animation: 'bgFadeOut 0.5s ease forwards', pointerEvents: 'none' }}>
+                <BgLayer t={BG_THEMES[fromTab]} />
+              </div>
+            )}
           </div>
 
           <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, paddingTop: 'env(safe-area-inset-top,0px)' }}>
@@ -1935,28 +1943,30 @@
               </LG>
             </div>
 
-            <div style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', minHeight: 0, WebkitOverflowScrolling: 'touch' }}>
-              {tab === 'calque' && (
-                <TabCalque
-                  image={overlayImage}
-                  opacity={opacity}
-                  setOpacity={setOpacity}
-                  zoom={zoom}
-                  setZoom={setZoom}
-                  rotation={rotation}
-                  setRotation={setRotation}
-                  mirror={mirror}
-                  setMirror={setMirror}
-                  grid={grid}
-                  setGrid={setGrid}
-                  onImportImage={handleImportImage}
-                  onOpenLibrary={() => switchTab('biblio')}
-                  onRemoveImage={handleRemoveImage}
-                  onOpenCamera={() => setCameraMode(true)}
-                />
-              )}
-              {tab === 'couleurs' && <TabCouleurs overlayImage={overlayImage} />}
-              {tab === 'biblio' && <TabBibliotheque onUseReference={handleUseReference} />}
+            <div style={{ flex: 1, minHeight: 0, position: 'relative', overflow: 'hidden' }}>
+              <div key={tab} style={{ position: 'absolute', inset: 0, overflowY: 'auto', overflowX: 'hidden', WebkitOverflowScrolling: 'touch', animation: slideDir ? `${slideDir === 'right' ? 'pageSlideInRight' : 'pageSlideInLeft'} 0.38s cubic-bezier(0.22,1,0.36,1) both` : undefined }}>
+                {tab === 'calque' && (
+                  <TabCalque
+                    image={overlayImage}
+                    opacity={opacity}
+                    setOpacity={setOpacity}
+                    zoom={zoom}
+                    setZoom={setZoom}
+                    rotation={rotation}
+                    setRotation={setRotation}
+                    mirror={mirror}
+                    setMirror={setMirror}
+                    grid={grid}
+                    setGrid={setGrid}
+                    onImportImage={handleImportImage}
+                    onOpenLibrary={() => switchTab('biblio')}
+                    onRemoveImage={handleRemoveImage}
+                    onOpenCamera={() => setCameraMode(true)}
+                  />
+                )}
+                {tab === 'couleurs' && <TabCouleurs overlayImage={overlayImage} />}
+                {tab === 'biblio' && <TabBibliotheque onUseReference={handleUseReference} />}
+              </div>
             </div>
 
             <div

@@ -172,3 +172,16 @@ input[type=range] {
 }
 
 ::-webkit-scrollbar { width: 0; }
+
+@keyframes pageSlideInRight {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0); }
+}
+@keyframes pageSlideInLeft {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(0); }
+}
+@keyframes bgFadeOut {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
