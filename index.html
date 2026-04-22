@@ -901,50 +901,30 @@
                 style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', borderRadius: 28, boxShadow: '0 24px 80px rgba(0,0,0,.34)' }}
               />
               {marker && (
-                <>
-                  <div
-                    style={{
-                      position: 'absolute',
-                      left: `${marker.xPct}%`,
-                      top: `${marker.yPct}%`,
-                      transform: 'translate(-50%, calc(-100% - 22px))',
-                      width: 88,
-                      height: 88,
-                      borderRadius: '50%',
-                      border: '2px solid rgba(255,255,255,.92)',
-                      overflow: 'hidden',
-                      boxShadow: '0 14px 30px rgba(0,0,0,.34), 0 0 0 8px rgba(255,255,255,.08)',
-                      backgroundImage: `url("${image}")`,
-                      backgroundRepeat: 'no-repeat',
-                      backgroundSize: `${marker.displayWidth * 2.6}px ${marker.displayHeight * 2.6}px`,
-                      backgroundPosition: `${50 - marker.xPct * 2.6}% ${50 - marker.yPct * 2.6}%`,
-                      pointerEvents: 'none',
-                    }}
-                  >
-                    <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(255,255,255,.18), transparent 34%, transparent 66%, rgba(0,0,0,.16))' }} />
-                    <div style={{ position: 'absolute', left: '50%', top: 0, bottom: 0, width: 1, background: 'rgba(255,255,255,.88)', transform: 'translateX(-50%)' }} />
-                    <div style={{ position: 'absolute', top: '50%', left: 0, right: 0, height: 1, background: 'rgba(255,255,255,.88)', transform: 'translateY(-50%)' }} />
-                  </div>
-                  <div
-                    style={{
-                      position: 'absolute',
-                      left: `${marker.xPct}%`,
-                      top: `${marker.yPct}%`,
-                      transform: 'translate(-50%, -50%)',
-                      width: 34,
-                      height: 34,
-                      borderRadius: '50%',
-                      border: '2px solid rgba(255,255,255,.9)',
-                      boxShadow: `0 0 0 5px ${draftColor}55, 0 6px 20px rgba(0,0,0,.35)`,
-                      background: 'rgba(255,255,255,.08)',
-                      pointerEvents: 'none',
-                    }}
-                  >
-                    <div style={{ position: 'absolute', left: '50%', top: 0, bottom: 0, width: 1, background: 'rgba(255,255,255,.9)', transform: 'translateX(-50%)' }} />
-                    <div style={{ position: 'absolute', top: '50%', left: 0, right: 0, height: 1, background: 'rgba(255,255,255,.9)', transform: 'translateY(-50%)' }} />
-                    <div style={{ position: 'absolute', inset: 10, borderRadius: '50%', background: draftColor, boxShadow: `0 0 10px ${draftColor}88` }} />
-                  </div>
-                </>
+                <div
+                  style={{
+                    position: 'absolute',
+                    left: `${marker.xPct}%`,
+                    top: `${marker.yPct}%`,
+                    transform: 'translate(-50%, -50%)',
+                    width: 74,
+                    height: 74,
+                    borderRadius: '50%',
+                    border: '2px solid rgba(255,255,255,.94)',
+                    overflow: 'hidden',
+                    boxShadow: `0 0 0 6px ${draftColor}33, 0 14px 30px rgba(0,0,0,.34)`,
+                    backgroundImage: `url("${image}")`,
+                    backgroundRepeat: 'no-repeat',
+                    backgroundSize: `${marker.displayWidth * 2.8}px ${marker.displayHeight * 2.8}px`,
+                    backgroundPosition: `${50 - marker.xPct * 2.8}% ${50 - marker.yPct * 2.8}%`,
+                    pointerEvents: 'none',
+                  }}
+                >
+                  <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(255,255,255,.2), transparent 34%, transparent 66%, rgba(0,0,0,.18))' }} />
+                  <div style={{ position: 'absolute', left: '50%', top: 0, bottom: 0, width: 1, background: 'rgba(255,255,255,.92)', transform: 'translateX(-50%)' }} />
+                  <div style={{ position: 'absolute', top: '50%', left: 0, right: 0, height: 1, background: 'rgba(255,255,255,.92)', transform: 'translateY(-50%)' }} />
+                  <div style={{ position: 'absolute', left: '50%', top: '50%', width: 10, height: 10, borderRadius: '50%', background: draftColor, border: '1.5px solid rgba(255,255,255,.95)', transform: 'translate(-50%, -50%)', boxShadow: `0 0 12px ${draftColor}aa` }} />
+                </div>
               )}
             </div>
           </div>
