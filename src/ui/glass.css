@@ -4,6 +4,7 @@ html, body {
   height: 100%;
   font-family: 'Inter', -apple-system, system-ui, sans-serif;
   background: linear-gradient(180deg, #dfe8ff 0%, #aac1ff 18%, #4f78eb 44%, #1b39aa 72%, #08102f 100%);
+  background-color: #08102f;
   color: white;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
