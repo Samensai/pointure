@@ -855,6 +855,7 @@
     }
 
     function TabCouleurs({ overlayImage }) {
+      const theme = useContext(ThemeCtx);
       const [targetColor, setTargetColor] = useState(null);
       const [showSources, setShowSources] = useState(false);
       const [showSampler, setShowSampler] = useState(false);
@@ -898,7 +899,7 @@
                   <div style={{ color: 'rgba(244,249,255,.86)', textShadow: '0 1px 8px rgba(6,18,56,.28)', fontSize: 11, fontWeight: 700, letterSpacing: 2.2, textTransform: 'uppercase' }}>Couleur cible</div>
                     <div style={{ color: 'white', fontSize: 24, fontWeight: 800, letterSpacing: -.8 }}>Definir une couleur</div>
                   </div>
-                  <LG r={16} innerStyle={{ padding: '8px 12px' }}>
+                  <LG r={16} innerStyle={{ padding: '8px 12px', background: theme?.btnInner, transition: 'background 0.5s ease' }}>
                     <span style={{ color: targetColor ? 'white' : 'rgba(255,255,255,.58)', fontSize: 12, fontWeight: 700 }}>
                       {targetColor ? targetColor.toUpperCase() : 'Aucune'}
                     </span>
@@ -955,7 +956,7 @@
                       <div style={{ color: 'rgba(244,249,255,.86)', textShadow: '0 1px 8px rgba(6,18,56,.28)', fontSize: 11, fontWeight: 700, letterSpacing: 2.2, textTransform: 'uppercase' }}>Melange suggere</div>
                       <div style={{ color: 'white', fontSize: 23, fontWeight: 800, letterSpacing: -.8 }}>Recette conseillee</div>
                     </div>
-                    <LG r={16} innerStyle={{ padding: '8px 12px' }}>
+                    <LG r={16} innerStyle={{ padding: '8px 12px', background: theme?.btnInner, transition: 'background 0.5s ease' }}>
                       <span style={{ color: 'white', fontSize: 12, fontWeight: 700 }}>{suggestion.proximity}% proche</span>
                     </LG>
                   </div>
@@ -1073,7 +1074,7 @@
                           minWidth: 88,
                           borderRadius: 14,
                           border: '1px solid rgba(255,255,255,.18)',
-                          background: availableByBrand.length === 0 ? 'rgba(255,255,255,.08)' : 'linear-gradient(135deg,rgba(180,220,255,.26),rgba(90,135,255,.22))',
+                          background: availableByBrand.length === 0 ? 'rgba(255,255,255,.08)' : (theme?.btnInner || 'linear-gradient(135deg,rgba(180,220,255,.26),rgba(90,135,255,.22))'),
                           color: 'white',
                           fontWeight: 700,
                           cursor: availableByBrand.length === 0 ? 'default' : 'pointer',
@@ -1574,6 +1575,7 @@
     }
 
     function TabBibliotheque({ onUseReference }) {
+      const theme = useContext(ThemeCtx);
       const [q, setQ] = useState('');
       const [active, setActive] = useState(null);
       const [difficulty, setDifficulty] = useState('tous');
@@ -1615,7 +1617,7 @@
                   style={{
                     border: 'none',
                     background: difficulty === item.id
-                      ? 'linear-gradient(135deg,rgba(166,216,255,.24),rgba(77,122,255,.24))'
+                      ? (theme?.btnInner || 'linear-gradient(135deg,rgba(166,216,255,.24),rgba(77,122,255,.24))')
                       : 'rgba(255,255,255,.04)',
                     color: difficulty === item.id ? 'white' : 'rgba(255,255,255,.72)',
                     padding: '10px 14px',
@@ -1661,7 +1663,7 @@
                       <LG r={11} innerStyle={{ padding: '1px' }}>
                         <button
                           onClick={() => onUseReference(getReferenceAsset(ref))}
-                          style={{ width: '100%', padding: '9px', borderRadius: 10, background: 'linear-gradient(135deg,rgba(100,80,220,.25),rgba(80,60,180,.15))', border: 'none', cursor: 'pointer', color: 'white', fontSize: 12, fontWeight: 600 }}
+                          style={{ width: '100%', padding: '9px', borderRadius: 10, background: theme?.btnInner || 'linear-gradient(135deg,rgba(100,80,220,.25),rgba(80,60,180,.15))', border: 'none', cursor: 'pointer', color: 'white', fontSize: 12, fontWeight: 600 }}
                         >
                           Utiliser comme reference →
                         </button>
