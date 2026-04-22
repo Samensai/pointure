@@ -826,6 +826,7 @@
     function ColorSamplerOverlay({ image, currentColor, onClose, onConfirm }) {
       const imgRef = useRef(null);
       const canvasRef = useRef(null);
+      const zoomCanvasRef = useRef(null);
       const [draftColor, setDraftColor] = useState(currentColor || '#ffffff');
       const [marker, setMarker] = useState(null);
 
@@ -862,15 +863,34 @@
         const py = Math.max(0, Math.min(img.naturalHeight - 1, Math.round((y / rect.height) * img.naturalHeight)));
         const averaged = averageSample(ctx, px, py, 3);
         const nextColor = rgbToHex(averaged);
+        const zoomCanvas = zoomCanvasRef.current || document.createElement('canvas');
+        zoomCanvasRef.current = zoomCanvas;
+        zoomCanvas.width = 120;
+        zoomCanvas.height = 120;
+        const zoomCtx = zoomCanvas.getContext('2d');
+        if (!zoomCtx) return;
+        const sourceRadius = 14;
+        const sourceX = Math.max(0, Math.min(img.naturalWidth - sourceRadius * 2, px - sourceRadius));
+        const sourceY = Math.max(0, Math.min(img.naturalHeight - sourceRadius * 2, py - sourceRadius));
+        zoomCtx.clearRect(0, 0, zoomCanvas.width, zoomCanvas.height);
+        zoomCtx.imageSmoothingEnabled = false;
+        zoomCtx.drawImage(
+          canvas,
+          sourceX,
+          sourceY,
+          sourceRadius * 2,
+          sourceRadius * 2,
+          0,
+          0,
+          zoomCanvas.width,
+          zoomCanvas.height
+        );
 
         setDraftColor(nextColor);
         setMarker({
           xPct: (x / rect.width) * 100,
           yPct: (y / rect.height) * 100,
-          displayX: x,
-          displayY: y,
-          displayWidth: rect.width,
-          displayHeight: rect.height,
+          zoomUrl: zoomCanvas.toDataURL('image/png'),
         });
       };
 
@@ -914,13 +934,15 @@
                       border: '2px solid rgba(255,255,255,.94)',
                       overflow: 'hidden',
                       boxShadow: `0 0 0 6px ${draftColor}2f, 0 16px 34px rgba(0,0,0,.34)`,
-                      backgroundImage: `url("${image}")`,
-                      backgroundRepeat: 'no-repeat',
-                      backgroundSize: `${marker.displayWidth * 3}px ${marker.displayHeight * 3}px`,
-                      backgroundPosition: `${50 - marker.xPct * 3}% ${50 - marker.yPct * 3}%`,
+                      background: '#0a122b',
                       pointerEvents: 'none',
                     }}
                   >
+                    <img
+                      src={marker.zoomUrl}
+                      alt=""
+                      style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                    />
                     <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(255,255,255,.2), transparent 34%, transparent 66%, rgba(0,0,0,.18))' }} />
                     <div style={{ position: 'absolute', left: '50%', top: 0, bottom: 0, width: 1, background: 'rgba(255,255,255,.92)', transform: 'translateX(-50%)' }} />
                     <div style={{ position: 'absolute', top: '50%', left: 0, right: 0, height: 1, background: 'rgba(255,255,255,.92)', transform: 'translateY(-50%)' }} />
