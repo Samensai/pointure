@@ -22,6 +22,26 @@
   <script type="text/babel">
     const { useState, useRef, useEffect } = React;
 
+    let _audioCtx = null;
+    function feedback() {
+      try { navigator.vibrate?.(8); } catch(e) {}
+      try {
+        if (!_audioCtx) _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const ctx = _audioCtx;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(1100, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(650, ctx.currentTime + 0.045);
+        gain.gain.setValueAtTime(0.09, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.055);
+        osc.start(ctx.currentTime);
+        osc.stop(ctx.currentTime + 0.055);
+      } catch(e) {}
+    }
+
     function Neu({ children, r = 24, style = {}, innerStyle = {} }) {
       return (
         <div style={{
@@ -147,7 +167,7 @@
     function ActionButton({ label, sublabel, onClick, danger = false, flush = false, prominent = false }) {
       const button = (
         <button
-          onClick={onClick}
+          onClick={() => { feedback(); onClick?.(); }}
           style={{
             width: '100%',
             padding: prominent ? '20px 18px' : (flush ? '16px 0' : '16px 18px'),
@@ -541,19 +561,19 @@
                   <GlassSlider value={zoom} onChange={setZoom} min={40} max={200} label="Zoom" unit="%" />
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 8 }}>
                     <Neu r={14}>
-                      <button onClick={() => setRotation(value => (value + 90) % 360)} style={{ width: '100%', padding: '12px 0', background: 'transparent', border: 'none', cursor: 'pointer', textAlign: 'center', borderRadius: 13 }}>
+                      <button onClick={() => { feedback(); setRotation(value => (value + 90) % 360); }} style={{ width: '100%', padding: '12px 0', background: 'transparent', border: 'none', cursor: 'pointer', textAlign: 'center', borderRadius: 13 }}>
                         <div style={{ fontSize: 18, marginBottom: 3, color: 'var(--text)' }}>↻</div>
                         <div style={{ color: 'var(--text-mute)', fontSize: 10, fontWeight: 500 }}>Rotation</div>
                       </button>
                     </Neu>
                     <Neu r={14}>
-                      <button onClick={() => setGrid(value => !value)} style={{ width: '100%', padding: '12px 0', background: 'transparent', border: 'none', cursor: 'pointer', textAlign: 'center', borderRadius: 13 }}>
+                      <button onClick={() => { feedback(); setGrid(value => !value); }} style={{ width: '100%', padding: '12px 0', background: 'transparent', border: 'none', cursor: 'pointer', textAlign: 'center', borderRadius: 13 }}>
                         <div style={{ fontSize: 18, marginBottom: 3, color: grid ? 'var(--accent)' : 'var(--text)' }}>⊞</div>
                         <div style={{ color: grid ? 'var(--accent)' : 'var(--text-mute)', fontSize: 10, fontWeight: 500 }}>Grille</div>
                       </button>
                     </Neu>
                     <Neu r={14}>
-                      <button onClick={() => setMirror(value => !value)} style={{ width: '100%', padding: '12px 0', background: 'transparent', border: 'none', cursor: 'pointer', textAlign: 'center', borderRadius: 13 }}>
+                      <button onClick={() => { feedback(); setMirror(value => !value); }} style={{ width: '100%', padding: '12px 0', background: 'transparent', border: 'none', cursor: 'pointer', textAlign: 'center', borderRadius: 13 }}>
                         <div style={{ fontSize: 18, marginBottom: 3, color: mirror ? 'var(--accent)' : 'var(--text)' }}>⇋</div>
                         <div style={{ color: mirror ? 'var(--accent)' : 'var(--text-mute)', fontSize: 10, fontWeight: 500 }}>Miroir</div>
                       </button>
@@ -1174,7 +1194,7 @@
                                 <div style={{ color: 'var(--text-mute)', fontSize: 11, fontFamily: 'monospace' }}>{recipe.target.toUpperCase()} → {recipe.mixed.toUpperCase()}</div>
                               </div>
                             </div>
-                            <button onClick={() => removeRecipe(recipe.id)} style={{ width: 30, height: 30, borderRadius: '50%', border: 'none', background: 'var(--bg)', boxShadow: 'var(--shadow-inset-sm)', color: 'var(--text-sub)', cursor: 'pointer', fontSize: 16 }}>−</button>
+                            <button onClick={() => { feedback(); removeRecipe(recipe.id); }} style={{ width: 30, height: 30, borderRadius: '50%', border: 'none', background: 'var(--bg)', boxShadow: 'var(--shadow-inset-sm)', color: 'var(--text-sub)', cursor: 'pointer', fontSize: 16 }}>−</button>
                           </div>
                           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                             {recipe.parts.map(part => (
@@ -1217,7 +1237,7 @@
                           <div style={{ color: 'var(--text)', fontSize: 14, fontWeight: 700 }}>{paint.name}</div>
                           <div style={{ color: 'var(--text-mute)', fontSize: 11 }}>{paint.brandName} · {paint.pigmentLabel} · {paint.shade}</div>
                         </div>
-                        <button onClick={() => removePaint(paint.id)} style={{ width: 30, height: 30, borderRadius: '50%', border: 'none', background: 'var(--bg)', boxShadow: 'var(--shadow-inset-sm)', color: 'var(--text-sub)', cursor: 'pointer', fontSize: 16 }}>−</button>
+                        <button onClick={() => { feedback(); removePaint(paint.id); }} style={{ width: 30, height: 30, borderRadius: '50%', border: 'none', background: 'var(--bg)', boxShadow: 'var(--shadow-inset-sm)', color: 'var(--text-sub)', cursor: 'pointer', fontSize: 16 }}>−</button>
                       </div>
                     </Neu>
                   ))}
@@ -1274,7 +1294,7 @@
                       </select>
                       </div>
                       <button
-                        onClick={addPaint}
+                        onClick={() => { feedback(); addPaint(); }}
                         disabled={availableByBrand.length === 0}
                         style={{
                           minWidth: 88,
@@ -1821,7 +1841,7 @@
             {difficulties.map(item => (
               <button
                 key={item.id}
-                onClick={() => setDifficulty(item.id)}
+                onClick={() => { feedback(); setDifficulty(item.id); }}
                 className={`neu-chip ${difficulty === item.id ? 'active' : ''}`}
               >
                 {item.label}
@@ -1833,7 +1853,7 @@
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 9, paddingBottom: 14 }}>
               {filtered.map(ref => (
                 <Neu key={ref.id} r={20} style={{ cursor: 'pointer', overflow: 'hidden', padding: 0 }}>
-                  <div onClick={() => setActive(active === ref.id ? null : ref.id)}>
+                  <div onClick={() => { feedback(); setActive(active === ref.id ? null : ref.id); }}>
                     <ReferenceCardImage refItem={ref} />
                     <div style={{ padding: '9px 11px' }}>
                       <div style={{ color: 'var(--text)', fontSize: 12, fontWeight: 700 }}>{ref.title}</div>
@@ -1859,7 +1879,7 @@
                         {ref.source} · {ref.rights}
                       </div>
                       <button
-                        onClick={() => onUseReference(getReferenceAsset(ref))}
+                        onClick={() => { feedback(); onUseReference(getReferenceAsset(ref)); }}
                         style={{ width: '100%', padding: '9px', borderRadius: 12, background: 'var(--accent)', border: 'none', cursor: 'pointer', color: '#fff', fontSize: 12, fontWeight: 600, fontFamily: 'inherit', boxShadow: '0 4px 12px rgba(0,0,0,.14)' }}
                       >
                         Utiliser comme reference →
@@ -1934,7 +1954,7 @@
             return (
               <button
                 key={t.id}
-                onClick={() => setTab(t.id)}
+                onClick={() => { feedback(); setTab(t.id); }}
                 style={{
                   display: 'flex',
                   flexDirection: 'column',
