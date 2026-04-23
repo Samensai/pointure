@@ -36,6 +36,30 @@
 .tab-couleurs { --accent: #e87060; }
 .tab-biblio   { --accent: #7c6ee8; }
 
+/* ── Mode sombre ── */
+.dark {
+  --bg: #1e2535;
+
+  --shadow-raised:   6px 6px 14px rgba(10,14,24,.82), -6px -6px 14px rgba(46,58,82,.68);
+  --shadow-inset:    inset 4px 4px 9px rgba(10,14,24,.78), inset -4px -4px 9px rgba(46,58,82,.62);
+  --shadow-flat:     3px 3px 7px rgba(10,14,24,.68), -3px -3px 7px rgba(46,58,82,.55);
+  --shadow-inset-sm: inset 2px 2px 5px rgba(10,14,24,.72), inset -2px -2px 5px rgba(46,58,82,.60);
+
+  --text:     #c8d4e8;
+  --text-sub: #8494aa;
+  --text-mute:#4e5e74;
+}
+
+.dark .neu-divider {
+  background: linear-gradient(90deg, transparent, rgba(46,58,82,.7), transparent);
+}
+
+/* Transition globale du fond */
+html { transition: background 0.35s; }
+
+/* Sélecteurs couleur native (input[type=color]) en mode sombre */
+.dark input[type=color] { filter: brightness(.85); }
+
 /* ── Reset ── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
