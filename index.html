@@ -720,6 +720,7 @@
     const DEFAULT_PAINTS = PAINT_DATA.defaultPaintIds
       .map(id => PAINT_LIBRARY.find(paint => paint.id === id))
       .filter(Boolean);
+    const MY_PAINTS_STORAGE_KEY = 'pointure_my_paints';
 
     function mixPaints(parts) {
       const active = parts.filter(part => part.ratio > 0);
@@ -988,7 +989,20 @@
       const [targetColor, setTargetColor] = useState(null);
       const [showSources, setShowSources] = useState(false);
       const [showSampler, setShowSampler] = useState(false);
-      const [myPaints, setMyPaints] = useState(() => DEFAULT_PAINTS);
+      const [myPaints, setMyPaints] = useState(() => {
+        try {
+          const saved = localStorage.getItem(MY_PAINTS_STORAGE_KEY);
+          if (!saved) return DEFAULT_PAINTS;
+          const savedIds = JSON.parse(saved);
+          if (!Array.isArray(savedIds)) return DEFAULT_PAINTS;
+          const restored = savedIds
+            .map(id => PAINT_LIBRARY.find(paint => paint.id === id))
+            .filter(Boolean);
+          return restored.length ? restored : DEFAULT_PAINTS;
+        } catch {
+          return DEFAULT_PAINTS;
+        }
+      });
       const [savedRecipes, setSavedRecipes] = useState(() => {
         try {
           const saved = localStorage.getItem('pointure_saved_recipes');
@@ -1015,6 +1029,12 @@
           setSelectedPaintId(availableByBrand[0].id);
         }
       }, [availableByBrand, selectedPaintId]);
+
+      useEffect(() => {
+        try {
+          localStorage.setItem(MY_PAINTS_STORAGE_KEY, JSON.stringify(myPaints.map(paint => paint.id)));
+        } catch {}
+      }, [myPaints]);
 
       const addPaint = () => {
         const paint = PAINT_LIBRARY.find(item => item.id === selectedPaintId);
