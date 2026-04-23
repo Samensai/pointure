@@ -1,0 +1,273 @@
+/* ── Pointure Neumorphic Design System ────────────────────────── */
+:root {
+  /* Fond unique */
+  --bg: #e4eaf2;
+
+  /* Couleurs des ombres */
+  --neu-light: rgba(255, 255, 255, 0.80);
+  --neu-dark:  rgba(163, 177, 198, 0.60);
+
+  /* Ombres composées (toujours en paires claire + sombre) */
+  --shadow-raised:   6px 6px 14px rgba(163,177,198,.60), -6px -6px 14px rgba(255,255,255,.80);
+  --shadow-inset:    inset 4px 4px 9px rgba(163,177,198,.55), inset -4px -4px 9px rgba(255,255,255,.80);
+  --shadow-flat:     3px 3px 7px rgba(163,177,198,.45), -3px -3px 7px rgba(255,255,255,.75);
+  --shadow-inset-sm: inset 2px 2px 5px rgba(163,177,198,.50), inset -2px -2px 5px rgba(255,255,255,.80);
+
+  /* Typographie */
+  --text:     #4a5568;
+  --text-sub: #7a8ba0;
+  --text-mute:#a0b0c0;
+
+  /* Accents par onglet */
+  --accent-calque:   #3ab5b0;
+  --accent-couleurs: #e87060;
+  --accent-biblio:   #7c6ee8;
+  --accent:          var(--accent-calque);
+
+  /* Motion */
+  --motion-curve: cubic-bezier(0.22, 1, 0.36, 1);
+  --motion-fast:  .28s var(--motion-curve);
+  --motion-base:  .48s var(--motion-curve);
+  --motion-slow:  .88s var(--motion-curve);
+}
+
+/* ── Accent par onglet (classe sur le conteneur racine) ── */
+.tab-calque   { --accent: #3ab5b0; }
+.tab-couleurs { --accent: #e87060; }
+.tab-biblio   { --accent: #7c6ee8; }
+
+/* ── Reset ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  font-family: 'DM Sans', -apple-system, system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Carte élevée (raised) ── */
+.neu-card {
+  background: var(--bg);
+  border-radius: 24px;
+  box-shadow: var(--shadow-raised);
+  padding: 22px;
+}
+
+/* ── Creux / input (inset) ── */
+.neu-inset {
+  background: var(--bg);
+  border-radius: 16px;
+  box-shadow: var(--shadow-inset);
+  padding: 12px 16px;
+}
+
+/* ── Bouton secondaire ── */
+.neu-btn {
+  background: var(--bg);
+  border: none;
+  border-radius: 14px;
+  box-shadow: var(--shadow-raised);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 12px 22px;
+  cursor: pointer;
+  transition: box-shadow 0.15s, transform 0.08s;
+}
+.neu-btn:active {
+  box-shadow: var(--shadow-inset-sm);
+  transform: scale(0.98);
+}
+
+/* ── Bouton primaire (accent) ── */
+.neu-btn-primary {
+  background: var(--accent);
+  border: none;
+  border-radius: 16px;
+  color: #fff;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 13px;
+  width: 100%;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.18);
+  cursor: pointer;
+  transition: box-shadow 0.15s, transform 0.08s;
+}
+.neu-btn-primary:active {
+  transform: scale(0.98);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.14);
+}
+
+/* ── Chip / filtre ── */
+.neu-chip {
+  background: var(--bg);
+  border: none;
+  border-radius: 20px;
+  box-shadow: var(--shadow-flat);
+  color: var(--text-sub);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 8px 16px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: box-shadow 0.15s, color 0.15s, background 0.15s;
+}
+.neu-chip.active {
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+}
+
+/* ── Icône d'onglet ── */
+.neu-tab-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background: var(--bg);
+  box-shadow: var(--shadow-flat);
+  display: grid;
+  place-items: center;
+  transition: box-shadow 0.15s, color 0.15s;
+}
+.neu-tab-icon.active {
+  box-shadow: var(--shadow-inset);
+}
+
+/* ── Typographie ── */
+.label-caps {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-mute);
+}
+
+.title-xl {
+  font-size: 38px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.08;
+  color: var(--text);
+}
+
+.title-lg {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+
+.body-md {
+  font-size: 13px;
+  font-weight: 300;
+  line-height: 1.65;
+  color: var(--text-sub);
+}
+
+.body-sm {
+  font-size: 11.5px;
+  font-weight: 300;
+  line-height: 1.5;
+  color: var(--text-mute);
+}
+
+/* ── Badges de niveau ── */
+.badge {
+  display: inline-block;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border-radius: 20px;
+}
+.badge-debutant {
+  background: rgba(58,181,176,0.12);
+  color: #3ab5b0;
+}
+.badge-intermediaire {
+  background: rgba(232,160,64,0.12);
+  color: #e8a040;
+}
+.badge-avance {
+  background: rgba(232,112,112,0.12);
+  color: #e87070;
+}
+
+/* ── Slider ── */
+.slider-track {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--bg);
+  box-shadow: var(--shadow-inset);
+  position: relative;
+  overflow: visible;
+}
+
+.slider-fill {
+  height: 100%;
+  border-radius: 999px;
+  position: absolute;
+  left: 0;
+  top: 0;
+  transition: width var(--motion-fast);
+  overflow: hidden;
+}
+
+.slider-thumb {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--bg);
+  box-shadow: var(--shadow-raised);
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  transition: left var(--motion-fast);
+}
+
+input[type=range] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  inset: 0;
+  cursor: pointer;
+  opacity: 0;
+}
+
+/* ── Divider ── */
+.neu-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(163,177,198,.35), transparent);
+  margin: 2px 0;
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 0; }
+
+/* ── Animations ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pageSlideInRight {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0); }
+}
+@keyframes pageSlideInLeft {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(0); }
+}
+
+.screen { animation: fadeUp var(--motion-slow) both; }
