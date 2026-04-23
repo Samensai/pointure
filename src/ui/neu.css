@@ -295,3 +295,8 @@ input[type=range] {
 }
 
 .screen { animation: fadeUp var(--motion-slow) both; }
+
+@keyframes onboardSlideUp {
+  from { transform: translateY(60px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
