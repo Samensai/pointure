@@ -985,10 +985,166 @@
       );
     }
 
+    function ColorPickerOverlay({ currentColor, onClose, onConfirm }) {
+      function hexToHsv(hex) {
+        const [r, g, b] = hexToRgb(hex).map(v => v / 255);
+        const max = Math.max(r, g, b), min = Math.min(r, g, b), d = max - min;
+        let h = 0;
+        const s = max === 0 ? 0 : d / max;
+        const v = max;
+        if (d !== 0) {
+          if (max === r) h = (g - b) / d + (g < b ? 6 : 0);
+          else if (max === g) h = (b - r) / d + 2;
+          else h = (r - g) / d + 4;
+          h /= 6;
+        }
+        return { h: h * 360, s: s * 100, v: v * 100 };
+      }
+
+      function hsvToHex(h, s, v) {
+        s /= 100; v /= 100;
+        const i = Math.floor(h / 60) % 6;
+        const f = h / 60 - Math.floor(h / 60);
+        const p = v * (1 - s), q = v * (1 - f * s), t = v * (1 - (1 - f) * s);
+        let r, g, b;
+        if (i === 0) { r = v; g = t; b = p; }
+        else if (i === 1) { r = q; g = v; b = p; }
+        else if (i === 2) { r = p; g = v; b = t; }
+        else if (i === 3) { r = p; g = q; b = v; }
+        else if (i === 4) { r = t; g = p; b = v; }
+        else { r = v; g = p; b = q; }
+        return rgbToHex([Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)]);
+      }
+
+      const initial = hexToHsv(currentColor || '#7e8df0');
+      const [hue, setHue] = useState(initial.h);
+      const [sat, setSat] = useState(initial.s);
+      const [val, setVal] = useState(initial.v);
+      const [hexInput, setHexInput] = useState((currentColor || '#7e8df0').toUpperCase());
+
+      const draftColor = hsvToHex(hue, sat, val);
+      const svRef = useRef(null);
+      const hueRef = useRef(null);
+
+      const handleSvInteraction = event => {
+        const rect = svRef.current?.getBoundingClientRect();
+        if (!rect) return;
+        const point = event.touches?.[0] || event;
+        const x = Math.max(0, Math.min(1, (point.clientX - rect.left) / rect.width));
+        const y = Math.max(0, Math.min(1, (point.clientY - rect.top) / rect.height));
+        const newSat = x * 100;
+        const newVal = (1 - y) * 100;
+        setSat(newSat);
+        setVal(newVal);
+        setHexInput(hsvToHex(hue, newSat, newVal).toUpperCase());
+      };
+
+      const handleHueInteraction = event => {
+        const rect = hueRef.current?.getBoundingClientRect();
+        if (!rect) return;
+        const point = event.touches?.[0] || event;
+        const x = Math.max(0, Math.min(1, (point.clientX - rect.left) / rect.width));
+        const newHue = x * 360;
+        setHue(newHue);
+        setHexInput(hsvToHex(newHue, sat, val).toUpperCase());
+      };
+
+      const handleHexInput = e => {
+        const v = e.target.value;
+        setHexInput(v);
+        if (/^#[0-9a-fA-F]{6}$/.test(v)) {
+          const hsv = hexToHsv(v);
+          setHue(hsv.h);
+          setSat(hsv.s);
+          setVal(hsv.v);
+        }
+      };
+
+      return (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 35, background: 'rgba(2,6,18,.88)', backdropFilter: 'blur(18px)', WebkitBackdropFilter: 'blur(18px)' }}>
+          <div style={{ position: 'absolute', top: 'calc(env(safe-area-inset-top, 0px) + 14px)', left: 14, right: 14, display: 'flex', justifyContent: 'space-between', alignItems: 'center', zIndex: 3 }}>
+            <button onClick={onClose} style={{ width: 46, height: 46, borderRadius: '50%', border: '1px solid rgba(255,255,255,.22)', background: 'rgba(255,255,255,.08)', color: 'white', fontSize: 24, cursor: 'pointer' }}>←</button>
+            <div style={{ background: 'rgba(20,24,40,.82)', backdropFilter: 'blur(14px)', borderRadius: 18, padding: '10px 14px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <div style={{ width: 18, height: 18, borderRadius: '50%', background: draftColor, boxShadow: `0 0 16px ${draftColor}88` }} />
+                <span style={{ color: 'white', fontSize: 13, fontWeight: 700 }}>{draftColor.toUpperCase()}</span>
+              </div>
+            </div>
+          </div>
+
+          <div style={{ position: 'absolute', inset: 'calc(env(safe-area-inset-top, 0px) + 78px) 18px 130px', display: 'flex', flexDirection: 'column', gap: 18, justifyContent: 'center' }}>
+            <div
+              ref={svRef}
+              style={{ width: '100%', aspectRatio: '1 / 0.65', borderRadius: 22, position: 'relative', overflow: 'hidden', touchAction: 'none', flexShrink: 0, boxShadow: '0 8px 32px rgba(0,0,0,.35)' }}
+              onPointerDown={e => { e.currentTarget.setPointerCapture(e.pointerId); handleSvInteraction(e); }}
+              onPointerMove={e => { if (e.buttons > 0) handleSvInteraction(e); }}
+            >
+              <div style={{ position: 'absolute', inset: 0, background: `hsl(${hue}, 100%, 50%)` }} />
+              <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, #fff, transparent)' }} />
+              <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, transparent, #000)' }} />
+              <div style={{
+                position: 'absolute',
+                left: `${sat}%`,
+                top: `${100 - val}%`,
+                transform: 'translate(-50%, -50%)',
+                width: 26, height: 26,
+                borderRadius: '50%',
+                border: '3px solid white',
+                boxShadow: '0 0 0 2px rgba(0,0,0,.25), 0 4px 14px rgba(0,0,0,.45)',
+                background: draftColor,
+                pointerEvents: 'none',
+              }} />
+            </div>
+
+            <div
+              ref={hueRef}
+              style={{ width: '100%', height: 40, borderRadius: 20, position: 'relative', touchAction: 'none', background: 'linear-gradient(to right, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00)', boxShadow: '0 4px 16px rgba(0,0,0,.25)', flexShrink: 0 }}
+              onPointerDown={e => { e.currentTarget.setPointerCapture(e.pointerId); handleHueInteraction(e); }}
+              onPointerMove={e => { if (e.buttons > 0) handleHueInteraction(e); }}
+            >
+              <div style={{
+                position: 'absolute',
+                left: `${(hue / 360) * 100}%`,
+                top: '50%',
+                transform: 'translate(-50%, -50%)',
+                width: 32, height: 32,
+                borderRadius: '50%',
+                border: '3px solid white',
+                boxShadow: '0 0 0 2px rgba(0,0,0,.25), 0 4px 14px rgba(0,0,0,.4)',
+                background: `hsl(${hue}, 100%, 50%)`,
+                pointerEvents: 'none',
+              }} />
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, background: 'rgba(255,255,255,.1)', borderRadius: 16, padding: '12px 16px' }}>
+              <div style={{ width: 30, height: 30, borderRadius: 10, background: draftColor, boxShadow: `0 0 14px ${draftColor}66`, flexShrink: 0 }} />
+              <input
+                type="text"
+                value={hexInput}
+                onChange={handleHexInput}
+                maxLength={7}
+                style={{ flex: 1, background: 'transparent', border: 'none', outline: 'none', color: 'white', fontSize: 16, fontWeight: 700, fontFamily: 'monospace', letterSpacing: 1 }}
+                placeholder="#RRGGBB"
+              />
+            </div>
+          </div>
+
+          <div style={{ position: 'absolute', left: 18, right: 18, bottom: 'calc(env(safe-area-inset-bottom, 0px) + 16px)', zIndex: 3 }}>
+            <ActionButton
+              label="Choisir cette couleur"
+              sublabel="Valider la teinte selectionnee et revenir au melange."
+              onClick={() => { feedback(); onConfirm(draftColor); }}
+            />
+          </div>
+        </div>
+      );
+    }
+
     function TabCouleurs({ overlayImage }) {
       const [targetColor, setTargetColor] = useState(null);
       const [showSources, setShowSources] = useState(false);
       const [showSampler, setShowSampler] = useState(false);
+      const [showColorPicker, setShowColorPicker] = useState(false);
       const [myPaints, setMyPaints] = useState(() => {
         try {
           const saved = localStorage.getItem(MY_PAINTS_STORAGE_KEY);
@@ -1013,7 +1169,6 @@
       });
       const [selectedBrandId, setSelectedBrandId] = useState(() => (PAINT_DATA.brands[0]?.id || ''));
       const [selectedPaintId, setSelectedPaintId] = useState('');
-      const colorInputRef = useRef(null);
 
       const suggestion = buildSuggestedMix(targetColor, myPaints);
       const availableByBrand = PAINT_LIBRARY.filter(
@@ -1111,8 +1266,8 @@
                       <div className="neu-divider" />
                       <ActionButton
                         label="Depuis la palette"
-                        sublabel="Utilise le selecteur de couleur classique pour definir la teinte cible."
-                        onClick={() => colorInputRef.current?.click()}
+                        sublabel="Ouvre le selecteur de teinte pour definir la couleur cible."
+                        onClick={() => { feedback(); setShowColorPicker(true); setShowSources(false); }}
                         flush
                       />
                     </div>
@@ -1338,13 +1493,6 @@
               </div>
             </Neu>
 
-            <input
-              ref={colorInputRef}
-              type="color"
-              style={{ display: 'none' }}
-              onChange={e => setTargetColor(e.target.value)}
-              value={targetColor || '#7e8df0'}
-            />
             <div style={{ height: 24 }} />
           </div>
 
@@ -1357,6 +1505,17 @@
                 setTargetColor(color);
                 setShowSampler(false);
                 setShowSources(false);
+              }}
+            />
+          )}
+
+          {showColorPicker && (
+            <ColorPickerOverlay
+              currentColor={targetColor}
+              onClose={() => setShowColorPicker(false)}
+              onConfirm={color => {
+                setTargetColor(color);
+                setShowColorPicker(false);
               }}
             />
           )}
