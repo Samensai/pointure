@@ -1,10 +1,12 @@
-const CACHE = 'pointure-v17';
+const CACHE = 'pointure-v18';
 const ASSETS = [
   '/pointure/',
   '/pointure/index.html',
   '/pointure/src/data/paintData.js',
-  '/pointure/src/ui/glass.css',
-  '/pointure/public/manifest.json'
+  '/pointure/src/ui/neu.css',
+  '/pointure/public/manifest.json',
+  '/pointure/public/icons/icon-192.png',
+  '/pointure/public/icons/icon-512.png'
 ];
 
 self.addEventListener('install', e => {
