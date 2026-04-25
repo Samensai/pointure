@@ -1016,11 +1016,11 @@
         return rgbToHex([Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)]);
       }
 
-      const initial = hexToHsv(currentColor || '#7e8df0');
+      const initial = currentColor ? hexToHsv(currentColor) : { h: 180, s: 50, v: 50 };
       const [hue, setHue] = useState(initial.h);
       const [sat, setSat] = useState(initial.s);
       const [val, setVal] = useState(initial.v);
-      const [hexInput, setHexInput] = useState((currentColor || '#7e8df0').toUpperCase());
+      const [hexInput, setHexInput] = useState(currentColor ? currentColor.toUpperCase() : hsvToHex(180, 50, 50).toUpperCase());
 
       const draftColor = hsvToHex(hue, sat, val);
       const svRef = useRef(null);
