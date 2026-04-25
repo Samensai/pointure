@@ -1886,6 +1886,74 @@
       },
     ];
 
+    const SURPRISE_PAINTINGS = [
+      {
+        id: 'surprise-compotier',
+        title: 'Compotier cubiste',
+        difficulty: 'intermediaire',
+        viewBox: '0 0 500 340',
+        steps: [
+          { label: 'Fond crème',          targetHex: '#f0ebe0', path: 'M0,0 H500 V340 H0 Z' },
+          { label: 'Arc vert sombre',     targetHex: '#2d5228', path: 'M70,0 L430,0 L440,60 Q410,200 350,290 L260,340 L150,340 L100,290 Q50,200 60,60 Z' },
+          { label: 'Zone verte gauche',   targetHex: '#4a7a3a', path: 'M0,0 L80,0 L90,100 L60,200 L0,250 Z' },
+          { label: 'Zone bordeaux droite',targetHex: '#8a2020', path: 'M420,0 L500,0 L500,200 L440,220 L415,100 Z' },
+          { label: 'Coupe orange',        targetHex: '#e8901a', path: 'M150,220 L200,205 L300,205 L360,220 L340,310 L320,340 L180,340 L165,310 Z' },
+          { label: 'Citron',              targetHex: '#f5c842', path: 'M300,120 L390,95 L430,145 L400,210 L325,220 L280,180 Z' },
+          { label: 'Grosse orange',       targetHex: '#e87018', path: 'M185,110 L285,88 L330,130 L315,185 L235,200 L175,170 Z' },
+          { label: 'Raisins verts',       targetHex: '#5a9a28', path: 'M225,40 L315,28 L365,65 L348,118 L268,128 L220,95 Z' },
+          { label: 'Raisins violets',     targetHex: '#6a3870', path: 'M128,145 L190,130 L210,168 L200,210 L152,218 L108,190 Z' },
+          { label: 'Pomme rouge',         targetHex: '#c02828', path: 'M148,65 L210,50 L248,90 L228,128 L168,135 L128,105 Z' },
+        ],
+      },
+      {
+        id: 'surprise-marine',
+        title: 'Marine coloriste',
+        difficulty: 'debutant',
+        viewBox: '0 0 360 500',
+        steps: [
+          { label: 'Façade jaune',   targetHex: '#f0c020', path: 'M0,0 H360 V280 H0 Z' },
+          { label: 'Volets sombres', targetHex: '#2a3530', path: 'M25,60 L148,60 L148,200 L25,200 Z M208,60 L338,60 L338,200 L208,200 Z' },
+          { label: 'Stores rouges',  targetHex: '#c02828', path: 'M18,48 L150,48 L156,78 L12,78 Z M202,48 L342,48 L348,78 L196,78 Z' },
+          { label: 'Quai blanc',     targetHex: '#e8e8e0', path: 'M0,280 H360 V318 H0 Z' },
+          { label: 'Eau sombre',     targetHex: '#1a2848', path: 'M0,318 H360 V500 H0 Z' },
+          { label: 'Barque bleue',   targetHex: '#4858c8', path: 'M12,345 L118,334 L128,418 L22,428 Z' },
+          { label: 'Barque cyan',    targetHex: '#28a0c0', path: 'M132,338 L232,328 L242,412 L140,422 Z' },
+          { label: 'Barque sarcelle',targetHex: '#208878', path: 'M245,340 L342,332 L350,415 L252,424 Z' },
+          { label: 'Reflets dorés',  targetHex: '#c8a018', path: 'M0,435 L360,435 L360,448 Q180,442 0,448 Z M15,460 L345,458 L342,470 L18,472 Z' },
+        ],
+      },
+      {
+        id: 'surprise-piscine',
+        title: 'Bord de piscine',
+        difficulty: 'debutant',
+        viewBox: '0 0 500 360',
+        steps: [
+          { label: 'Fond vert olive',  targetHex: '#5a6a30', path: 'M0,0 H500 V360 H0 Z' },
+          { label: 'Dalle de béton',   targetHex: '#b8b0a0', path: 'M0,240 H500 V305 H0 Z' },
+          { label: 'Eau de piscine',   targetHex: '#38a090', path: 'M0,305 H500 V345 H0 Z' },
+          { label: 'Carreaux bleus',   targetHex: '#6080b0', path: 'M0,345 H500 V360 H0 Z' },
+          { label: 'Corps (peau)',      targetHex: '#e0c898', path: 'M80,90 L420,72 L435,200 L395,258 L112,262 L78,195 Z' },
+          { label: 'Chevelure brune',  targetHex: '#382018', path: 'M152,72 L300,62 L308,125 L172,133 Z' },
+          { label: 'Maillot rouge',    targetHex: '#c02828', path: 'M105,198 L388,182 L395,255 L100,258 Z' },
+        ],
+      },
+      {
+        id: 'surprise-cubiste',
+        title: 'Portrait cubiste',
+        difficulty: 'intermediaire',
+        viewBox: '0 0 360 440',
+        steps: [
+          { label: 'Fond sombre',    targetHex: '#282828', path: 'M0,0 H360 V440 H0 Z' },
+          { label: 'Coiffe bleue',   targetHex: '#4070c0', path: 'M72,0 L360,0 L360,250 L138,298 Z' },
+          { label: 'Triangle doré',  targetHex: '#e8c030', path: 'M188,0 L360,0 L360,148 L255,208 Z' },
+          { label: 'Drapé clair',    targetHex: '#e0e0d8', path: 'M118,148 L228,142 L238,238 L122,246 Z' },
+          { label: 'Visage',         targetHex: '#d8b880', path: 'M102,240 L248,232 L258,328 L112,338 Z' },
+          { label: 'Robe orange',    targetHex: '#e06828', path: 'M38,318 L322,305 L338,440 L22,440 Z' },
+          { label: 'Zone brune',     targetHex: '#503820', path: 'M245,278 L330,262 L348,392 L262,408 Z' },
+        ],
+      },
+    ];
+
     function buildReferencePoster(ref) {
       const svg = `
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 1200">
@@ -1982,7 +2050,189 @@
       );
     }
 
-    function TabBibliotheque({ onUseReference }) {
+    function SurpriseModeOverlay({ painting, onClose }) {
+      const [zoneIndex, setZoneIndex] = useState(0);
+      const [phase, setPhase] = useState('color');
+      const [cameraError, setCameraError] = useState(false);
+      const videoRef = useRef(null);
+      const streamRef = useRef(null);
+
+      const [myPaints] = useState(() => {
+        try {
+          const saved = localStorage.getItem(MY_PAINTS_STORAGE_KEY);
+          if (!saved) return [];
+          const ids = JSON.parse(saved);
+          return ids.map(id => PAINT_LIBRARY.find(p => p.id === id)).filter(Boolean);
+        } catch { return []; }
+      });
+
+      const total = painting.steps.length;
+      const currentZone = painting.steps[zoneIndex];
+      const suggestion = buildSuggestedMix(currentZone.targetHex, myPaints);
+
+      useEffect(() => {
+        if (phase !== 'camera') return;
+        setCameraError(false);
+        navigator.mediaDevices?.getUserMedia({ video: { facingMode: 'environment' }, audio: false })
+          .then(stream => {
+            streamRef.current = stream;
+            if (videoRef.current) videoRef.current.srcObject = stream;
+          })
+          .catch(() => setCameraError(true));
+        return () => { streamRef.current?.getTracks().forEach(t => t.stop()); streamRef.current = null; };
+      }, [phase]);
+
+      useEffect(() => () => { streamRef.current?.getTracks().forEach(t => t.stop()); }, []);
+
+      const goNext = () => {
+        feedback();
+        if (phase === 'color') {
+          setPhase('camera');
+        } else if (zoneIndex < total - 1) {
+          setZoneIndex(i => i + 1);
+          setPhase('color');
+        } else {
+          streamRef.current?.getTracks().forEach(t => t.stop());
+          streamRef.current = null;
+          setPhase('done');
+        }
+      };
+
+      const TopBar = ({ onBack, label }) => (
+        <div style={{ position: 'absolute', top: 'calc(env(safe-area-inset-top, 0px) + 14px)', left: 14, right: 14, display: 'flex', justifyContent: 'space-between', alignItems: 'center', zIndex: 3 }}>
+          <button onClick={onBack} style={{ width: 46, height: 46, borderRadius: '50%', border: '1px solid rgba(255,255,255,.22)', background: 'rgba(255,255,255,.08)', color: 'white', fontSize: 24, cursor: 'pointer' }}>←</button>
+          <div style={{ background: 'rgba(20,24,40,.82)', backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)', borderRadius: 18, padding: '10px 14px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ width: 10, height: 10, borderRadius: '50%', background: currentZone.targetHex, boxShadow: `0 0 8px ${currentZone.targetHex}` }} />
+              <span style={{ color: 'white', fontSize: 12, fontWeight: 700 }}>{label}</span>
+            </div>
+          </div>
+        </div>
+      );
+
+      if (phase === 'done') {
+        return (
+          <div style={{ position: 'fixed', inset: 0, zIndex: 40, background: 'rgba(2,6,18,.94)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', display: 'flex', flexDirection: 'column', alignItems: 'center', paddingTop: 'calc(env(safe-area-inset-top, 0px) + 80px)', paddingLeft: 20, paddingRight: 20, paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 20px)' }}>
+            <div style={{ color: 'rgba(255,255,255,.45)', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1.2, marginBottom: 6 }}>Terminé !</div>
+            <div style={{ color: 'white', fontSize: 24, fontWeight: 700, marginBottom: 4, textAlign: 'center' }}>{painting.title}</div>
+            <div style={{ color: 'rgba(255,255,255,.45)', fontSize: 13, marginBottom: 24, textAlign: 'center' }}>Voici la peinture que tu viens de réaliser.</div>
+            <svg viewBox={painting.viewBox} style={{ width: '100%', maxWidth: 320, borderRadius: 20, boxShadow: '0 24px 60px rgba(0,0,0,.6)', flex: '0 0 auto' }}>
+              {painting.steps.map((s, i) => <path key={i} d={s.path} fill={s.targetHex} />)}
+            </svg>
+            <div style={{ marginTop: 'auto', width: '100%', paddingTop: 24 }}>
+              <ActionButton label="Terminer" sublabel="Retour à la bibliothèque." onClick={onClose} />
+            </div>
+          </div>
+        );
+      }
+
+      if (phase === 'camera') {
+        return (
+          <div style={{ position: 'fixed', inset: 0, zIndex: 40, background: '#000', overflow: 'hidden' }}>
+            {!cameraError && (
+              <video ref={videoRef} autoPlay playsInline muted style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+            )}
+            {cameraError && (
+              <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(2,6,18,.95)' }}>
+                <div style={{ color: 'rgba(255,255,255,.45)', fontSize: 14, textAlign: 'center', padding: 24, lineHeight: 1.6 }}>Caméra non disponible.<br/>Réfère-toi au guide ci-dessous et appuie sur Suivant quand tu as peint.</div>
+              </div>
+            )}
+            <TopBar onBack={() => setPhase('color')} label={`${zoneIndex + 1}/${total} · ${currentZone.label}`} />
+
+            <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
+              <svg viewBox={painting.viewBox} style={{ width: '88vw', maxHeight: '62vh' }}>
+                {painting.steps.slice(0, zoneIndex).map((s, i) => (
+                  <path key={i} d={s.path} fill={s.targetHex} opacity="0.78" stroke="rgba(255,255,255,.2)" strokeWidth="1" strokeLinejoin="round" />
+                ))}
+                {painting.steps.slice(zoneIndex + 1).map((s, i) => (
+                  <path key={i} d={s.path} fill="rgba(0,0,0,.55)" stroke="rgba(255,255,255,.15)" strokeWidth="0.8" strokeLinejoin="round" />
+                ))}
+                <path d={currentZone.path} fill={`${currentZone.targetHex}45`} stroke="white" strokeWidth="2.5" strokeDasharray="7 3" strokeLinejoin="round" />
+              </svg>
+            </div>
+
+            <div style={{ position: 'absolute', left: 18, right: 18, bottom: 'calc(env(safe-area-inset-bottom, 0px) + 16px)', zIndex: 3 }}>
+              <ActionButton
+                label={zoneIndex < total - 1 ? 'Zone suivante →' : 'Terminer →'}
+                sublabel={zoneIndex < total - 1 ? `Encore ${total - zoneIndex - 1} zone${total - zoneIndex - 1 > 1 ? 's' : ''} à peindre.` : 'Dernière zone — tu as presque fini !'}
+                onClick={goNext}
+              />
+            </div>
+          </div>
+        );
+      }
+
+      return (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 40, background: 'rgba(2,6,18,.92)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', display: 'flex', flexDirection: 'column' }}>
+          <TopBar onBack={onClose} label={`Étape ${zoneIndex + 1} / ${total}`} />
+
+          <div style={{ position: 'absolute', top: 'calc(env(safe-area-inset-top, 0px) + 74px)', left: 18, right: 18, height: 3, borderRadius: 2, background: 'rgba(255,255,255,.15)' }}>
+            <div style={{ height: '100%', borderRadius: 2, background: 'white', width: `${(zoneIndex / total) * 100}%`, transition: 'width .45s' }} />
+          </div>
+
+          <div style={{ flex: 1, overflowY: 'auto', paddingTop: 'calc(env(safe-area-inset-top, 0px) + 90px)', paddingLeft: 18, paddingRight: 18, paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 110px)' }}>
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 20 }}>
+              <svg viewBox={painting.viewBox} style={{ width: 160, borderRadius: 14, overflow: 'hidden' }}>
+                {painting.steps.map((s, i) => (
+                  <path key={i} d={s.path}
+                    fill={i < zoneIndex ? s.targetHex : i === zoneIndex ? `${s.targetHex}70` : 'rgba(255,255,255,.07)'}
+                    stroke={i === zoneIndex ? 'white' : 'rgba(255,255,255,.08)'}
+                    strokeWidth={i === zoneIndex ? 2 : 0.5}
+                    strokeLinejoin="round"
+                  />
+                ))}
+              </svg>
+            </div>
+
+            <div style={{ color: 'rgba(255,255,255,.4)', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1.2, marginBottom: 4 }}>Zone à peindre</div>
+            <div style={{ color: 'white', fontSize: 22, fontWeight: 700, marginBottom: 16 }}>{currentZone.label}</div>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14, background: 'rgba(255,255,255,.07)', borderRadius: 18, padding: '14px 16px', marginBottom: 14 }}>
+              <div style={{ width: 52, height: 52, borderRadius: 16, background: currentZone.targetHex, boxShadow: `0 8px 24px ${currentZone.targetHex}66`, flexShrink: 0 }} />
+              <div>
+                <div style={{ color: 'rgba(255,255,255,.4)', fontSize: 10, textTransform: 'uppercase', letterSpacing: 1 }}>Couleur cible</div>
+                <div style={{ color: 'white', fontSize: 17, fontWeight: 700, fontFamily: 'monospace', marginTop: 2 }}>{currentZone.targetHex.toUpperCase()}</div>
+              </div>
+            </div>
+
+            {myPaints.length > 0 && suggestion ? (
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+                  <div style={{ color: 'rgba(255,255,255,.4)', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1.2 }}>Recette de mélange</div>
+                  <div style={{ background: 'rgba(255,255,255,.12)', borderRadius: 999, padding: '3px 10px' }}>
+                    <span style={{ color: 'white', fontSize: 11, fontWeight: 700 }}>{suggestion.proximity}% proche</span>
+                  </div>
+                </div>
+                {suggestion.parts.map((part, i) => (
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, background: 'rgba(255,255,255,.06)', borderRadius: 14, padding: '11px 14px', marginBottom: 8 }}>
+                    <div style={{ width: 32, height: 32, borderRadius: 10, background: part.paint.color, boxShadow: `0 4px 14px ${part.paint.color}55`, flexShrink: 0 }} />
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ color: 'white', fontSize: 13, fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{part.paint.name}</div>
+                      <div style={{ color: 'rgba(255,255,255,.35)', fontSize: 11 }}>{part.paint.brandName}</div>
+                    </div>
+                    <div style={{ color: 'white', fontSize: 16, fontWeight: 700, fontFamily: 'monospace', flexShrink: 0 }}>{Math.round(part.ratio * 100)}%</div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div style={{ background: 'rgba(255,255,255,.05)', borderRadius: 14, padding: '14px 16px', color: 'rgba(255,255,255,.38)', fontSize: 13, lineHeight: 1.6 }}>
+                Ajoute des peintures dans l'onglet Couleurs pour obtenir une recette de mélange automatique.
+              </div>
+            )}
+          </div>
+
+          <div style={{ position: 'absolute', left: 18, right: 18, bottom: 'calc(env(safe-area-inset-bottom, 0px) + 16px)', zIndex: 3 }}>
+            <ActionButton
+              label="Peindre cette zone →"
+              sublabel="Active la caméra pour repérer la zone sur ton support."
+              onClick={goNext}
+            />
+          </div>
+        </div>
+      );
+    }
+
+    function TabBibliotheque({ onUseReference, onStartSurprise }) {
       const [q, setQ] = useState('');
       const [active, setActive] = useState(null);
       const [difficulty, setDifficulty] = useState('tous');
@@ -2005,6 +2255,40 @@
 
       return (
         <div className="screen" style={{ height: '100%', display: 'flex', flexDirection: 'column', gap: 10, padding: '12px 16px 0', overflowX: 'hidden' }}>
+
+          {/* Peintures surprises */}
+          <div>
+            <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-sub)', textTransform: 'uppercase', letterSpacing: 0.9, marginBottom: 8 }}>Peintures surprises</div>
+            <div style={{ display: 'flex', gap: 10, overflowX: 'auto', paddingBottom: 4, marginLeft: -16, marginRight: -16, paddingLeft: 16, paddingRight: 16 }}>
+              {SURPRISE_PAINTINGS.map((p, idx) => (
+                <Neu key={p.id} r={18} style={{ flexShrink: 0, width: 148, overflow: 'hidden', padding: 0 }}>
+                  <div style={{ height: 78, position: 'relative', overflow: 'hidden' }}>
+                    <svg viewBox={p.viewBox} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}>
+                      {p.steps.map((s, i) => <path key={i} d={s.path} fill={s.targetHex} />)}
+                    </svg>
+                    <div style={{ position: 'absolute', inset: 0, background: 'rgba(228,234,242,.78)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 3 }}>
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--text-sub)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="12" cy="12" r="10" />
+                        <path d="M12 16v-4M12 8h.01" />
+                      </svg>
+                      <span style={{ color: 'var(--text-sub)', fontSize: 9, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.8 }}>Surprise</span>
+                    </div>
+                  </div>
+                  <div style={{ padding: '8px 10px 10px' }}>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text)' }}>Peinture #{idx + 1}</div>
+                    <div style={{ fontSize: 10, color: 'var(--text-sub)', marginTop: 2 }}>{p.steps.length} zones · {p.difficulty}</div>
+                    <button
+                      onClick={() => { feedback(); onStartSurprise(p); }}
+                      style={{ marginTop: 7, width: '100%', padding: '6px', borderRadius: 10, background: 'var(--accent)', border: 'none', cursor: 'pointer', color: '#fff', fontSize: 11, fontWeight: 600, fontFamily: 'inherit', boxShadow: '0 3px 10px rgba(0,0,0,.12)' }}
+                    >
+                      Lancer →
+                    </button>
+                  </div>
+                </Neu>
+              ))}
+            </div>
+          </div>
+
           <div className="neu-inset" style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
             <svg width="15" height="15" fill="none" stroke="var(--text-mute)" strokeWidth="2" strokeLinecap="round"><circle cx="6.5" cy="6.5" r="4.5" /><path d="M11 11l3 3" /></svg>
             <input
@@ -2474,6 +2758,7 @@
         return saved || null;
       });
       const [cameraMode, setCameraMode] = useState(false);
+      const [surprisePainting, setSurprisePainting] = useState(null);
       const [opacity, setOpacity] = useState(65);
       const [zoom, setZoom] = useState(100);
       const [rotation, setRotation] = useState(0);
@@ -2594,7 +2879,7 @@
                   />
                 )}
                 {tab === 'couleurs' && <TabCouleurs overlayImage={overlayImage} />}
-                {tab === 'biblio' && <TabBibliotheque onUseReference={handleUseReference} />}
+                {tab === 'biblio' && <TabBibliotheque onUseReference={handleUseReference} onStartSurprise={setSurprisePainting} />}
               </div>
             </div>
 
@@ -2603,6 +2888,7 @@
             </div>
           </div>
           {showOnboarding && <Onboarding onDone={() => setShowOnboarding(false)} />}
+          {surprisePainting && <SurpriseModeOverlay painting={surprisePainting} onClose={() => setSurprisePainting(null)} />}
         </div>
       );
     }
