@@ -681,7 +681,19 @@
     function expandPaintLibrary() {
       const pigmentMap = PAINT_DATA.pigments || {};
       const paints = [];
-
+    
+      (PAINT_DATA.brands || []).forEach(brand => {
+        (brand.colors || []).forEach(color => {
+          const pigmentEntries = (color.pigments || [])
+            .map(code => ({ code, ...pigmentMap[code] }))
+            .filter(entry => entry.name);
+    
+          // reste du code inchangé...
+        });
+      });
+    
+      return paints;
+    }
       (PAINT_DATA.brands || []).forEach(brand => {
         brand.colors.forEach(color => {
           const pigmentEntries = color.pigments
