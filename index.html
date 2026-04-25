@@ -688,43 +688,31 @@
             .map(code => ({ code, ...pigmentMap[code] }))
             .filter(entry => entry.name);
     
-          // reste du code inchangé...
-        });
-      });
-    
-      return paints;
-    }
-      (PAINT_DATA.brands || []).forEach(brand => {
-        brand.colors.forEach(color => {
-          const pigmentEntries = color.pigments
-            .map(code => ({ code, ...pigmentMap[code] }))
-            .filter(entry => entry.name);
-
           const opacityScore = pigmentEntries.length
             ? pigmentEntries.reduce((sum, pigment) => sum + (pigment.opacity ?? 0.6), 0) / pigmentEntries.length
             : 0.6;
-
+    
           const tintStrength = pigmentEntries.length
             ? pigmentEntries.reduce((sum, pigment) => sum + (pigment.tintStrength ?? 0.6), 0) / pigmentEntries.length
             : 0.6;
-
+    
           paints.push({
             id: color.id,
             brandId: brand.id,
             brandName: brand.name,
             range: brand.range,
             name: color.name,
-            pigments: color.pigments,
-            pigmentLabel: color.pigments.join(', '),
+            pigments: color.pigments || [],
+            pigmentLabel: (color.pigments || []).join(', '),
             shade: color.shade,
             opacityLabel: color.opacity,
-            color: color.hex || buildPaintColor(color.pigments, pigmentMap),
+            color: color.hex || buildPaintColor(color.pigments || [], pigmentMap),
             opacityScore,
             tintStrength,
           });
         });
       });
-
+    
       return paints;
     }
 
