@@ -2066,7 +2066,7 @@
         } catch (e) { return []; }
       });
 
-      const steps = Array.isArray(painting?.steps) ? steps : [];
+      const steps = Array.isArray(painting?.steps) ? painting.steps : [];
       const total = steps.length;
       const currentZone = steps[zoneIndex];
       
