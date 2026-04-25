@@ -2063,7 +2063,7 @@
           if (!saved) return [];
           const ids = JSON.parse(saved);
           return ids.map(id => PAINT_LIBRARY.find(p => p.id === id)).filter(Boolean);
-        } catch { return []; }
+        } catch (e) { return []; }
       });
 
       const total = painting.steps.length;
@@ -2073,16 +2073,25 @@
       useEffect(() => {
         if (phase !== 'camera') return;
         setCameraError(false);
-        navigator.mediaDevices?.getUserMedia({ video: { facingMode: 'environment' }, audio: false })
+        let cancelled = false;
+        const md = navigator.mediaDevices;
+        if (!md || !md.getUserMedia) { setCameraError(true); return; }
+        md.getUserMedia({ video: { facingMode: 'environment' }, audio: false })
           .then(stream => {
+            if (cancelled) { stream.getTracks().forEach(t => t.stop()); return; }
             streamRef.current = stream;
             if (videoRef.current) videoRef.current.srcObject = stream;
           })
-          .catch(() => setCameraError(true));
-        return () => { streamRef.current?.getTracks().forEach(t => t.stop()); streamRef.current = null; };
+          .catch(() => { if (!cancelled) setCameraError(true); });
+        return () => {
+          cancelled = true;
+          if (streamRef.current) { streamRef.current.getTracks().forEach(t => t.stop()); streamRef.current = null; }
+        };
       }, [phase]);
 
-      useEffect(() => () => { streamRef.current?.getTracks().forEach(t => t.stop()); }, []);
+      useEffect(() => {
+        return () => { if (streamRef.current) { streamRef.current.getTracks().forEach(t => t.stop()); } };
+      }, []);
 
       const goNext = () => {
         feedback();
@@ -2092,23 +2101,15 @@
           setZoneIndex(i => i + 1);
           setPhase('color');
         } else {
-          streamRef.current?.getTracks().forEach(t => t.stop());
-          streamRef.current = null;
+          if (streamRef.current) { streamRef.current.getTracks().forEach(t => t.stop()); streamRef.current = null; }
           setPhase('done');
         }
       };
 
-      const TopBar = ({ onBack, label }) => (
-        <div style={{ position: 'absolute', top: 'calc(env(safe-area-inset-top, 0px) + 14px)', left: 14, right: 14, display: 'flex', justifyContent: 'space-between', alignItems: 'center', zIndex: 3 }}>
-          <button onClick={onBack} style={{ width: 46, height: 46, borderRadius: '50%', border: '1px solid rgba(255,255,255,.22)', background: 'rgba(255,255,255,.08)', color: 'white', fontSize: 24, cursor: 'pointer' }}>←</button>
-          <div style={{ background: 'rgba(20,24,40,.82)', backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)', borderRadius: 18, padding: '10px 14px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <div style={{ width: 10, height: 10, borderRadius: '50%', background: currentZone.targetHex, boxShadow: `0 0 8px ${currentZone.targetHex}` }} />
-              <span style={{ color: 'white', fontSize: 12, fontWeight: 700 }}>{label}</span>
-            </div>
-          </div>
-        </div>
-      );
+      const topBarColor = currentZone.targetHex;
+      const topBarStyle = { position: 'absolute', top: 'calc(env(safe-area-inset-top, 0px) + 14px)', left: 14, right: 14, display: 'flex', justifyContent: 'space-between', alignItems: 'center', zIndex: 3 };
+      const backBtnStyle = { width: 46, height: 46, borderRadius: '50%', border: '1px solid rgba(255,255,255,.22)', background: 'rgba(255,255,255,.08)', color: 'white', fontSize: 24, cursor: 'pointer' };
+      const pillStyle = { background: 'rgba(20,24,40,.82)', backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)', borderRadius: 18, padding: '10px 14px' };
 
       if (phase === 'done') {
         return (
@@ -2134,11 +2135,18 @@
             )}
             {cameraError && (
               <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(2,6,18,.95)' }}>
-                <div style={{ color: 'rgba(255,255,255,.45)', fontSize: 14, textAlign: 'center', padding: 24, lineHeight: 1.6 }}>Caméra non disponible.<br/>Réfère-toi au guide ci-dessous et appuie sur Suivant quand tu as peint.</div>
+                <div style={{ color: 'rgba(255,255,255,.45)', fontSize: 14, textAlign: 'center', padding: 24, lineHeight: 1.6 }}>Caméra non disponible.<br />Peins la zone indiquée ci-dessus et appuie sur Suivant.</div>
               </div>
             )}
-            <TopBar onBack={() => setPhase('color')} label={`${zoneIndex + 1}/${total} · ${currentZone.label}`} />
-
+            <div style={topBarStyle}>
+              <button onClick={() => setPhase('color')} style={backBtnStyle}>←</button>
+              <div style={pillStyle}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <div style={{ width: 10, height: 10, borderRadius: '50%', background: topBarColor, boxShadow: `0 0 8px ${topBarColor}` }} />
+                  <span style={{ color: 'white', fontSize: 12, fontWeight: 700 }}>{zoneIndex + 1}/{total} · {currentZone.label}</span>
+                </div>
+              </div>
+            </div>
             <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
               <svg viewBox={painting.viewBox} style={{ width: '88vw', maxHeight: '62vh' }}>
                 {painting.steps.slice(0, zoneIndex).map((s, i) => (
@@ -2147,10 +2155,9 @@
                 {painting.steps.slice(zoneIndex + 1).map((s, i) => (
                   <path key={i} d={s.path} fill="rgba(0,0,0,.55)" stroke="rgba(255,255,255,.15)" strokeWidth="0.8" strokeLinejoin="round" />
                 ))}
-                <path d={currentZone.path} fill={`${currentZone.targetHex}45`} stroke="white" strokeWidth="2.5" strokeDasharray="7 3" strokeLinejoin="round" />
+                <path d={currentZone.path} fill={topBarColor + '45'} stroke="white" strokeWidth="2.5" strokeDasharray="7 3" strokeLinejoin="round" />
               </svg>
             </div>
-
             <div style={{ position: 'absolute', left: 18, right: 18, bottom: 'calc(env(safe-area-inset-bottom, 0px) + 16px)', zIndex: 3 }}>
               <ActionButton
                 label={zoneIndex < total - 1 ? 'Zone suivante →' : 'Terminer →'}
@@ -2164,7 +2171,15 @@
 
       return (
         <div style={{ position: 'fixed', inset: 0, zIndex: 40, background: 'rgba(2,6,18,.92)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', display: 'flex', flexDirection: 'column' }}>
-          <TopBar onBack={onClose} label={`Étape ${zoneIndex + 1} / ${total}`} />
+          <div style={topBarStyle}>
+            <button onClick={onClose} style={backBtnStyle}>←</button>
+            <div style={pillStyle}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div style={{ width: 10, height: 10, borderRadius: '50%', background: topBarColor, boxShadow: `0 0 8px ${topBarColor}` }} />
+                <span style={{ color: 'white', fontSize: 12, fontWeight: 700 }}>Étape {zoneIndex + 1} / {total}</span>
+              </div>
+            </div>
+          </div>
 
           <div style={{ position: 'absolute', top: 'calc(env(safe-area-inset-top, 0px) + 74px)', left: 18, right: 18, height: 3, borderRadius: 2, background: 'rgba(255,255,255,.15)' }}>
             <div style={{ height: '100%', borderRadius: 2, background: 'white', width: `${(zoneIndex / total) * 100}%`, transition: 'width .45s' }} />
@@ -2175,7 +2190,7 @@
               <svg viewBox={painting.viewBox} style={{ width: 160, borderRadius: 14, overflow: 'hidden' }}>
                 {painting.steps.map((s, i) => (
                   <path key={i} d={s.path}
-                    fill={i < zoneIndex ? s.targetHex : i === zoneIndex ? `${s.targetHex}70` : 'rgba(255,255,255,.07)'}
+                    fill={i < zoneIndex ? s.targetHex : i === zoneIndex ? s.targetHex + '70' : 'rgba(255,255,255,.07)'}
                     stroke={i === zoneIndex ? 'white' : 'rgba(255,255,255,.08)'}
                     strokeWidth={i === zoneIndex ? 2 : 0.5}
                     strokeLinejoin="round"
@@ -2188,10 +2203,10 @@
             <div style={{ color: 'white', fontSize: 22, fontWeight: 700, marginBottom: 16 }}>{currentZone.label}</div>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: 14, background: 'rgba(255,255,255,.07)', borderRadius: 18, padding: '14px 16px', marginBottom: 14 }}>
-              <div style={{ width: 52, height: 52, borderRadius: 16, background: currentZone.targetHex, boxShadow: `0 8px 24px ${currentZone.targetHex}66`, flexShrink: 0 }} />
+              <div style={{ width: 52, height: 52, borderRadius: 16, background: topBarColor, boxShadow: `0 8px 24px ${topBarColor}66`, flexShrink: 0 }} />
               <div>
                 <div style={{ color: 'rgba(255,255,255,.4)', fontSize: 10, textTransform: 'uppercase', letterSpacing: 1 }}>Couleur cible</div>
-                <div style={{ color: 'white', fontSize: 17, fontWeight: 700, fontFamily: 'monospace', marginTop: 2 }}>{currentZone.targetHex.toUpperCase()}</div>
+                <div style={{ color: 'white', fontSize: 17, fontWeight: 700, fontFamily: 'monospace', marginTop: 2 }}>{topBarColor.toUpperCase()}</div>
               </div>
             </div>
 
