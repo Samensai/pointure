@@ -830,6 +830,7 @@
 
     function ColorSamplerOverlay({ image, currentColor, onClose, onConfirm }) {
       const imgRef = useRef(null);
+      const containerRef = useRef(null);
       const canvasRef = useRef(null);
       const zoomCanvasRef = useRef(null);
       const [draftColor, setDraftColor] = useState(currentColor || '#ffffff');
@@ -892,9 +893,10 @@
         );
 
         setDraftColor(nextColor);
+        const containerRect = containerRef.current?.getBoundingClientRect();
         setMarker({
-          xPct: (x / rect.width) * 100,
-          yPct: (y / rect.height) * 100,
+          xPct: containerRect ? ((point.clientX - containerRect.left) / containerRect.width) * 100 : (x / rect.width) * 100,
+          yPct: containerRect ? ((point.clientY - containerRect.top) / containerRect.height) * 100 : (y / rect.height) * 100,
           zoomUrl: zoomCanvas.toDataURL('image/png'),
         });
       };
@@ -913,6 +915,7 @@
 
           <div style={{ position: 'absolute', inset: 'calc(env(safe-area-inset-top, 0px) + 74px) 18px 116px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <div
+              ref={containerRef}
               style={{ position: 'relative', width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', touchAction: 'none' }}
               onPointerDown={sampleColor}
               onPointerMove={event => {
